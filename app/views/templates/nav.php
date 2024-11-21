@@ -27,8 +27,18 @@
                     <a href="<?=site_url('user/jobseeker/jobApplication');?>" class="text-indigo-600 hover:text-indigo-800">Job Application</a>
                 <?php endif; ?>
                 <li class="nav-item">
-                    <a href="" class="text-gray-800 hover:text-indigo-600"><?=html_escape(get_username(get_user_id()));?></a>
+                    <?php
+                        // Assuming $user contains user data
+                        $role = $user['role'];
+                        $id = $user['id'];
+                        $username = html_escape(get_username($id));
+                        $profileLink = $role === 'employer' ? site_url('user/employer/profile') : site_url('user/jobseeker/profile');
+                    ?>
+                    <!-- Username Link -->
+                    <a href="<?= $profileLink; ?>" class="text-gray-800 hover:text-indigo-600"><?= $username; ?></a>
+
                 </li>
+
                 <li class="nav-item">
                     <a href="<?=site_url('auth/logout');?>" class="text-gray-800 hover:text-indigo-600">Logout</a>
                 </li>

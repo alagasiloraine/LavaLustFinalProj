@@ -26,6 +26,12 @@
                         <p class="mb-4"><strong>Status:</strong> <?= htmlspecialchars($job['status']); ?></p>
                         <a href="/job/view/<?= $job['job_id']; ?>" class="text-blue-500 hover:underline">View Details</a>
                       
+                        <!-- Edit and Delete buttons -->
+                        <?php if ($role === 'jobseeker'):?>
+                            <a href="/job/apply/<?= $job['job_id'];?>" class="text-blue-500 hover:underline">Apply</a>
+                            <a href="/job/resume/<?= $job['job_id'];?>" class="text-red-600 hover:underline">Send Resume</a>
+                        <?php endif;?>
+                        
                     </div>
 
                 <?php endforeach; ?>

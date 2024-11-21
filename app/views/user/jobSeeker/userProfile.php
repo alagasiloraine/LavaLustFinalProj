@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<?php
+include APP_DIR.'views/templates/header.php';
+?>
 <body>
 
 <?php
-      include APP_DIR.'views/templates/nav.php';
-      ?> 
+include APP_DIR.'views/templates/nav.php';
+?> 
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -23,7 +17,12 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <img src="../../../public/images/profile1.jpg" alt="Profile Picture" class="rounded-circle mb-3 bg-gray" width="150" height="150">
+                        <!-- Display profile picture -->
+                        <img src="<?= isset($job_seeker['profile_picture']) && !empty($job_seeker['profile_picture']) ? '../../../../uploads/profile_pictures/' . $job_seeker['profile_picture'] : '../../../public/images/default_profile.jpg'; ?>" 
+                             alt="Profile Picture" 
+                             class="rounded-circle mb-3 bg-gray" 
+                             width="150" 
+                             height="150">
                     </div>
                     <p><strong>Email:</strong> <?= $user['email']; ?></p>
                     <p><strong>Role:</strong> <?= $user['role']; ?></p>
@@ -38,6 +37,7 @@
                     <p><strong>Education:</strong> <?= isset($job_seeker['education']) ? $job_seeker['education'] : 'Not Provided'; ?></p>
                     <p><strong>Experience:</strong> <?= isset($job_seeker['experience']) ? $job_seeker['experience'] : 'Not Provided'; ?></p>
                     <p><strong>Availability:</strong> <?= isset($job_seeker['availability']) ? $job_seeker['availability'] : 'Not Provided'; ?></p>
+                    <p><strong>Resume:</strong> <?= isset($job_seeker['resume']) ? $job_seeker['resume'] : 'Not Provided'; ?></p>
                     
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
@@ -62,45 +62,48 @@
             </div>
             <div class="modal-body">
                 <form action="<?=site_url('user/profile/edit-profile');?>" method="POST" enctype="multipart/form-data">
-                <div class="mb-3">
-                        <label for="location" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" value="<?= isset($job_seeker['full_name']) ? $job_seeker['full_name'] : ''; ?>" placeholder="Enter your location">
-                    </div>
-                    <!-- Resume Upload -->
+                    <!-- Profile Picture Upload -->
                     <div class="mb-3">
-                        <label for="resume" class="form-label">Upload Resume</label>
-                        <?php if (isset($job_seeker['resume']) && !empty($job_seeker['resume'])): ?>
-                            <p>Current resume: <?= $job_seeker['resume']; ?></p>
+                        <label for="profile_picture" class="form-label">Profile Picture</label>
+                        <?php if (isset($job_seeker['profile_picture']) && !empty($job_seeker['profile_picture'])): ?>
+                            <p>Current Picture: <?= $job_seeker['profile_picture']; ?></p>
                         <?php endif; ?>
-                        <input class="form-control" type="file" name="resume" id="resume" accept=".pdf,.doc,.docx">
+                        <input class="form-control" type="file" name="profile_picture" id="profile_picture" accept="image/*">
                     </div>
-                    <!-- Location -->
+                    
+                    <!-- Other Fields -->
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" value="<?= isset($job_seeker['full_name']) ? $job_seeker['full_name'] : ''; ?>" placeholder="Enter your full name">
+                    </div>
                     <div class="mb-3">
                         <label for="location" class="form-label">Location</label>
                         <input type="text" class="form-control" id="location" name="location" value="<?= isset($job_seeker['location']) ? $job_seeker['location'] : ''; ?>" placeholder="Enter your location">
                     </div>
-                    <!-- Bio -->
                     <div class="mb-3">
                         <label for="bio" class="form-label">Bio</label>
                         <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Write a brief bio"><?= isset($job_seeker['bio']) ? $job_seeker['bio'] : ''; ?></textarea>
                     </div>
-                    <!-- Skills -->
                     <div class="mb-3">
                         <label for="skills" class="form-label">Skills</label>
                         <input type="text" class="form-control" id="skills" name="skills" value="<?= isset($job_seeker['skills']) ? $job_seeker['skills'] : ''; ?>" placeholder="List your skills (comma separated)">
                     </div>
-                    <!-- Education -->
                     <div class="mb-3">
                         <label for="education" class="form-label">Education</label>
-                        <input type="text" class="form-control" id="education" name="education" value="<?= isset($job_seeker['skills']) ? $job_seeker['skills'] : ''; ?>" placeholder="Enter your education">
+                        <input type="text" class="form-control" id="education" name="education" value="<?= isset($job_seeker['education']) ? $job_seeker['education'] : ''; ?>" placeholder="Enter your education">
                     </div>
-                    <!-- Experience -->
                     <div class="mb-3">
                         <label for="experience" class="form-label">Experience</label>
                         <textarea class="form-control" id="experience" name="experience" rows="3" placeholder="Describe your work experience"><?= isset($job_seeker['experience']) ? $job_seeker['experience'] : ''; ?></textarea>
                     </div>
-                   
-                    <!-- Availability Status -->
+                    <div class="mb-3">
+                        <label for="resume" class="form-label">Resume</label>
+                        <?php if (isset($job_seeker['resume']) && !empty($job_seeker['resume'])): ?>
+                            <p>Current Resume: <a href="<?= site_url('uploads/' . $job_seeker['resume']); ?>" target="_blank"><?= $job_seeker['resume']; ?></a></p>
+                        <?php endif; ?>
+                        <input class="form-control" type="file" name="resume" id="resume" accept=".pdf,.doc,.docx">
+                    </div>
+
                     <div class="mb-3">
                         <label for="availability" class="form-label">Availability</label>
                         <select class="form-select" id="availability" name="availability">

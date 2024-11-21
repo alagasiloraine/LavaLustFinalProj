@@ -1,16 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
 <?php
-      include APP_DIR.'views/templates/nav.php';
-      ?> 
+include APP_DIR.'views/templates/header.php';
+?>
+<body>
+    <?php
+    include APP_DIR.'views/templates/nav.php';
+    ?> 
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -22,14 +16,21 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <img src="../../../public/images/profile1.jpg" alt="Profile Picture" class="rounded-circle mb-3 bg-gray" width="150" height="150">
+                        <img src="<?= isset($employer['profile_picture']) && !empty($employer['profile_picture']) ? '../../../../uploads/profile_pictures/' . $employer['profile_picture'] : '../../../public/images/default_profile.jpg'; ?>" 
+                             alt="Profile Picture" 
+                             class="rounded-circle mb-3 bg-gray" 
+                             width="150" 
+                             height="150">
                     </div>
                     <p><strong>Email:</strong> <?= $user['email']; ?></p>
                     <p><strong>Role:</strong> <?= $user['role']; ?></p>
 
                     <!-- Job Seeker Details -->
                     <hr>
-                                       
+                    <p><strong>Company Name:</strong> <?= $employer['company_name']; ?></p>
+                    <p><strong>Company Address:</strong> <?= $employer['company_address']; ?></p>
+                    <p><strong>Contact Information:</strong> <?= $employer['contact_info']; ?></p>
+
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                         Edit Profile
@@ -52,28 +53,40 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="<?=site_url('user/profile/edit-profile');?>" method="POST" enctype="multipart/form-data">
+                <form action="<?=site_url('user/profile/editEmployerProfile');?>" method="POST" enctype="multipart/form-data">
+                    <!-- Profile Picture Upload -->
                     <div class="mb-3">
-                        <label for="location" class="form-label">Company Name</label>
-                        <input type="text" class="form-control" id="company_name" name="company_name" value="<?= isset($job_seeker['company_name']) ? $job_seeker['company_name'] : ''; ?>" placeholder="Enter your Company name">
+                        <label for="profile_picture" class="form-label">Profile Picture</label>
+                        <?php if (isset($employer['profile_picture']) && !empty($employer['profile_picture'])): ?>
+                            <p>Current Picture: <?= $employer['profile_picture']; ?></p>
+                        <?php endif; ?>
+                        <input class="form-control" type="file" name="profile_picture" id="profile_picture" accept="image/*">
                     </div>
-                    </div>
-                    <!-- Location -->
+                    
+                    <!-- Company Name -->
                     <div class="mb-3">
-                        <label for="location" class="form-label">Company address</label>
-                        <input type="text" class="form-control" id="company_address" name="company_address" value="<?= isset($job_seeker['company_address']) ? $job_seeker['company_address'] : ''; ?>" placeholder="Enter your company location">
+                        <label for="company_name" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name" value="<?= isset($employer['company_name']) ? $employer['company_name'] : ''; ?>" placeholder="Enter your company name">
                     </div>
-                  
-                    <!-- Skills -->
+                    
+                    <!-- Company Address -->
                     <div class="mb-3">
-                        <label for="skills" class="form-label">Contact Info</label>
-                        <input type="number" class="form-control" id="contact_info" name="contact_info" value="<?= isset($job_seeker['contact_info']) ? $job_seeker['contact_info'] : ''; ?>" >
+                        <label for="company_address" class="form-label">Company Address</label>
+                        <input type="text" class="form-control" id="company_address" name="company_address" value="<?= isset($employer['company_address']) ? $employer['company_address'] : ''; ?>" placeholder="Enter your company address">
                     </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="mb-3">
+                        <label for="contact_info" class="form-label">Contact Info</label>
+                        <input type="number" class="form-control" id="contact_info" name="contact_info" value="<?= isset($employer['contact_info']) ? $employer['contact_info'] : ''; ?>">
+                    </div>
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>

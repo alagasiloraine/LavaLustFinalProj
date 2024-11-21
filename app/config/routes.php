@@ -66,6 +66,8 @@ $router->group('/user', function() use ($router) {
     $router->match('/employer/deleteJob/{id}', 'jobController::deleteJob', ['POST', 'GET']);
 
     $router->match('/profile/edit-profile', 'userController::editProfile', ['POST', 'GET']);
+    $router->match('/profile/editEmployerProfile', 'userController::editEmployerProfile', ['POST', 'GET']);
+
 } );
 
 $router->group('/admin', function() use ($router){
