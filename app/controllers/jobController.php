@@ -4,68 +4,6 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class JobController extends Controller {
 
-    // public function jobPost() {
-    //     if (!isset($_SESSION['user_id'])) {
-    //         redirect('auth/login');
-    //     }
-    
-    //     $user_id = $_SESSION['user_id'];
-    
-    //     // Fetch employer_id for the logged-in user
-    //     $employer = $this->db->table('employers as e')
-    //         ->join('users as u', 'u.id = e.user_id')
-    //         ->select('e.employer_id')
-    //         ->where('u.id', $user_id)
-    //         ->get();
-    
-    //     if (!$employer) {
-    //         // Handle the case where employer_id is not found for the user
-    //         die('Employer not found for this user');
-    //     }
-    
-    //     $employer_id = $employer['employer_id'];
-    
-    //     // Prepare job data
-    //     $data = [
-    //         'title' => $this->io->post('title'),
-    //         'description' => $this->io->post('description'),
-    //         'requirements' => $this->io->post('requirements'),
-    //         'location' => $this->io->post('location'),
-    //         'job_type' => $this->io->post('job_type'),
-    //         'posted_at' => date('Y-m-d H:i:s'),
-    //         'salary' => $this->io->post('salary'),
-    //         'status' => $this->io->post('status'),
-    //         'employer_id' => $employer_id, // Add employer_id
-    //     ];
-    
-    //     // Check if the logged-in employer owns the job post
-    //     $job_id = $this->io->post('job_id'); // Assuming job_id is sent for updates
-    //     if ($job_id) {
-    //         $job = $this->db->table('jobs as j')
-    //             ->join('employers as e', 'j.employer_id = e.employer_id')
-    //             ->select('j.job_id')
-    //             ->where('j.job_id', $job_id)
-    //             ->where('e.employer_id', $employer_id)
-    //             ->get();
-    
-    //         if (!$job) {
-    //             // If the job doesn't belong to the logged-in employer, deny access
-    //             die('Unauthorized action');
-    //         }
-    
-    //         // Update job post
-    //         $this->db->table('jobs')
-    //             ->where('job_id', $job_id)
-    //             ->update($data);
-    //     } else {
-    //         // Insert new job post
-    //         $this->db->table('jobs')->insert($data);
-    //     }
-    
-    //     redirect('home');
-    // }
-
-
     public function jobPost() {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');  
@@ -96,7 +34,11 @@ class JobController extends Controller {
         ];
     
     
-        $this->db->table('jobs')->insert($data);
+        if ($this->db->table('jobs')->insert($data)) {
+            $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Job posted successfully!'];
+        } else {
+            $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to post job. Please try again.'];
+        }
     
         redirect('home');
     }
@@ -174,31 +116,51 @@ class JobController extends Controller {
             'updated_at' => date('Y-m-d H:i:s') // Track when the job was updated
         ];
 
-        // var_dump($data);
-        // die();
-
         // Update the job post in the database
         $result = $this->db->table('jobs')->where('job_id', $job_id)->update($data);
 
-        // Check the result of the update operation
+        // Set session message based on the result of the update
         if ($result) {
-            // Redirect back to the job posts page with a success message
-        //     $_SESSION['success'] = 'Job post updated successfully!';
-            // $this->call->view('user/employer/jobPost');
+            $_SESSION['success'] = 'Job post updated successfully!';
             redirect('user/employer/jobPosts');
         } else {
-            // Redirect back with an error message
-            // $_SESSION['error'] = 'Failed to update job post. Please try again.';
-            // $this->call->view('user/employer/jobPost');
+            $_SESSION['error'] = 'Failed to update job post. Please try again.';
             redirect('user/employer/jobPosts');
-
         }
     }
 
     public function deleteJob($job_id) {
-        
-        
+        // Ensure the user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            redirect('auth/login'); // Redirect to login if user is not authenticated
+        }
+    
+        // Validate the job ID
+        if (!$job_id || !is_numeric($job_id)) {
+            die('Invalid Job ID.');
+        }
+    
+        // Check if the job exists in the database
+        $job = $this->db->table('jobs')->where('job_id', $job_id)->get();
+        if (!$job) {
+            die('Job not found.');
+        }
+    
+        // Attempt to delete the job post
+        $result = $this->db->table('jobs')->where('job_id', $job_id)->delete();
+    
+        // Handle success or failure
+        if ($result) {
+            // Set a success message in the session
+            $_SESSION['success'] = 'Job post deleted successfully!';
+            redirect('user/employer/jobPosts'); // Redirect to the job posts page
+        } else {
+            // Set an error message in the session
+            $_SESSION['error'] = 'Failed to delete the job post. Please try again.';
+            redirect('user/employer/jobPosts'); // Redirect to the job posts page
+        }
     }
+    
 
     
     

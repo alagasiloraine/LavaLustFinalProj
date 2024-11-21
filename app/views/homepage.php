@@ -6,6 +6,14 @@ include APP_DIR.'views/templates/header.php';
       <?php
       include APP_DIR.'views/templates/nav.php';
       ?>  
+
+        <?php if (!empty($_SESSION['toastr'])): ?>
+        <script>
+            $(document).ready(function() {
+                toastr.<?= $_SESSION['toastr']['type']; ?>("<?= $_SESSION['toastr']['message']; ?>");
+            });
+        </script>
+        <?php unset($_SESSION['toastr']); endif; ?>
       <main class="mt-3 pt-3">
           <div class="container mx-auto px-4">
               <div class="flex justify-center">
