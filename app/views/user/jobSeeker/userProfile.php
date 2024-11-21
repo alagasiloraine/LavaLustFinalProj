@@ -7,6 +7,18 @@ include APP_DIR.'views/templates/header.php';
 include APP_DIR.'views/templates/nav.php';
 ?> 
 
+        <?php if (isset($_SESSION['success'])): ?>
+            <script>
+                toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+            </script>
+            <?php unset($_SESSION['success']); ?>
+        <?php elseif (isset($_SESSION['error'])): ?>
+            <script>
+                toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+            </script>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">

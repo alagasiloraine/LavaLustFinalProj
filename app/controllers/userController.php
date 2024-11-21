@@ -113,10 +113,22 @@ class userController extends Controller{
         $existing_profile = $this->db->table('job_seekers')->select('seeker_id')->where('user_id', $user_id)->get();
     
         if ($existing_profile) {
-            $this->db->table('job_seekers')->where('user_id', $user_id)->update($data);
+            $result = $this->db->table('job_seekers')->where('user_id', $user_id)->update($data);
+
+            if($result) {
+                $_SESSION['success'] = 'Profile updated successfully!';  
+            } else {
+                $_SESSION['error'] = 'Failed to update the profile. Please try again.';
+            }
         } else {
             $data['user_id'] = $user_id;
-            $this->db->table('job_seekers')->insert($data);
+            $result = $this->db->table('job_seekers')->insert($data);
+            if($result) {
+                $_SESSION['success'] = 'Profile set up successfully!';  
+            } else {
+                $_SESSION['error'] = 'Failed to update the profile. Please try again.';
+            }
+
         }
     
         redirect('user/jobseeker/profile');  // Redirect to the profile view page
@@ -162,10 +174,21 @@ class userController extends Controller{
 
 
         if ($existing_profile) {
-            $this->db->table('employers')->where('user_id', $user_id)->update($data);
+           $result = $this->db->table('employers')->where('user_id', $user_id)->update($data);
+
+           if($result) {
+                $_SESSION['success'] = 'Profile updated successfully!';  
+            } else {
+                $_SESSION['error'] = 'Failed to update the profile. Please try again.';
+            }
         } else {
             $data['user_id'] = $user_id;
-            $this->db->table('employers')->insert($data);
+            $result = $this->db->table('employers')->insert($data);
+            if($result) {
+                $_SESSION['success'] = 'Profile set up successfully!';  
+            } else {
+                $_SESSION['error'] = 'Failed to update the profile. Please try again.';
+            }
         }
     
         redirect('user/employer/profile');
