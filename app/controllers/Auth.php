@@ -41,6 +41,7 @@ class Auth extends Controller {
         if($this->form_validation->submitted()) {
             $username = $this->io->post('username');
             $email = $this->io->post('email');
+            // $role = $this->io->post('role');
 			$email_token = bin2hex(random_bytes(50));
             $this->form_validation
                 ->name('username')
@@ -58,9 +59,11 @@ class Auth extends Controller {
                     ->matches('password', 'Passwords did not match.')
                 ->name('email')
                     ->required()
-                    ->is_unique('users', 'email', $email, 'Email was already taken.');
+                    ->is_unique('users', 'email', $email, 'Email was already taken.')
+                ->name('role')
+                    ->required();
                 if($this->form_validation->run()) {
-                    if($this->lauth->register($username, $email, $this->io->post('password'), $email_token)) {
+                    if($this->lauth->register($username, $email, $this->io->post('password'), $email_token, $this->io->post('role'))) {
                         $data = $this->lauth->login($email, $this->io->post('password'));
                         $this->lauth->set_logged_in($data);
                         redirect('home');
@@ -75,6 +78,8 @@ class Auth extends Controller {
             $this->call->view('auth/register');
         }
         
+        
+
     }
 
     private function send_password_token_to_email($email, $token) {

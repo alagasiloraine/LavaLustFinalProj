@@ -40,6 +40,17 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
+                                    <label for="role" class="col-md-4 col-form-label text-md-end">Role</label>
+                                    <div class="col-md-6">
+                                        <select id="role" class="form-control" name="role" required>
+                                            <option value="">Select Role</option>
+                                            <option value="jobseeker">Job Seeker</option>
+                                            <option value="employer">Employer</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
                                     <label for="password" class="col-md-4 col-form-label text-md-end">Password</label>
                                     <div class="col-md-6">
                                         <input id="password" type="password" class="form-control" name="password" required>
@@ -90,6 +101,9 @@
                                 required: true,
                                 minlength: 5,
                                 maxlength: 20
+                            },
+                            role: {
+                                required: true,
                             }
                         },
                         messages: {
@@ -106,6 +120,9 @@
                             },
                             username: {
                                 required: "Please input your username.",                            
+                            },
+                            role: {
+                                required: "Please select your role.",
                             }
                         },
                     })

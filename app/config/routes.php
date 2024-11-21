@@ -44,8 +44,35 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 
 
-$router->get('/admin/dashboard', 'AdminController@dashboard');
-$router->get('/admin/analytics', 'AdminController@analytics');
-$router->get('/admin/jobs', 'AdminController@jobs');
-$router->get('/admin/jobseekers', 'AdminController@jobSeekers');
-$router->get('/admin/application', 'AdminController@application');
+$router->get('/', 'Auth');
+$router->get('/home', 'Home');
+$router->group('/auth', function() use ($router){
+    $router->match('/register', 'Auth::register', ['POST', 'GET']);
+    $router->match('/login', 'Auth::login', ['POST', 'GET']);
+    $router->get('/logout', 'Auth::logout');
+    $router->match('/password-reset', 'Auth::password_reset', ['POST', 'GET']);
+    $router->match('/set-new-password', 'Auth::set_new_password', ['POST', 'GET']);
+});
+
+
+$router->group('/user', function() use ($router) {
+    $router->match('/jobseeker/profile', 'userController::jobSeekerProfile', ['POST', 'GET']);
+
+    $router->match('/employer/profile', 'userController::employerProfile', ['POST', 'GET']);
+    $router->match('/employer/job-post', 'jobController::jobPost', ['POST', 'GET']);
+    $router->match('/employer/job-post-lists', 'jobController::getJob', ['POST', 'GET']);
+    $router->match('/employer/jobPosts', 'jobController::jobPosts', ['POST', 'GET']);
+    $router->match('/employer/updateJobPost/{id}', 'jobController::updateJobPost', ['POST', 'GET']);
+    $router->match('/employer/deleteJob/{id}', 'jobController::deleteJob', ['POST', 'GET']);
+
+    $router->match('/profile/edit-profile', 'userController::editProfile', ['POST', 'GET']);
+} );
+
+$router->group('/admin', function() use ($router){
+    $router->match('/dashboard', 'adminController::dashboard', ['POST', 'GET']);
+    $router->match('/analytics', 'adminController::analytics', ['POST', 'GET']); 
+    $router->match('/jobs', 'adminController::jobs', ['POST', 'GET']);
+    $router->match('/jobs/add-jobs', 'adminController::addJobs', ['POST', 'GET']);
+    $router->match('/jobseekers', 'adminController::jobSeekers', ['POST', 'GET']);
+    $router->match('/applications', 'adminController::application', ['POST', 'GET']);
+});
