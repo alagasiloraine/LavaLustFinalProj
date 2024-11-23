@@ -55,15 +55,44 @@ class JobController extends Controller {
                          ->where('user_id', $user_id)
                          ->get();
     
-        $applications = $this->db->table('job_applications')
-                                 ->where('seeker_id', $user['seeker_id'])
-                                 ->get_all();
-    
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') 
                          ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
                          ->get_all();
+
+        $applications = $this->db->table('job_applications')
+                        //  ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
+                        //  ->join('jobs as job', 'j.job_id = job.job_id') 
+                        //  ->join('employers as e', 'e.employer_id = job.employer_id') 
+                        //  ->join('users as u', 'u.id = s.user_id')
+                         ->select('status')
+                         ->where('j.jobseeker_id', $user['seeker_id']) 
+                         ->get();
+
+        // $jobs = $this->db->table('jobs as j')
+        //          ->join('employers as e', 'j.employer_id = e.employer_id')
+        //          ->join('job_seekers as s')
+        //          ->join('users as u', 'u.id = e.user_id')
+        //          ->left_join('job_applications as ja', 'j.job_id = ja.job_id')
+        //          ->select('j.job_id, 
+        //                    j.title, 
+        //                    j.description, 
+        //                    j.requirements, 
+        //                    j.location, 
+        //                    j.job_type, 
+        //                    j.salary, 
+        //                    j.posted_at, 
+        //                    j.status, 
+        //                    e.company_name, 
+        //                    e.contact_info, 
+        //                    MAX(ja.status) as application_status') // Use MAX() or another aggregate function
+        //          ->group_by('j.job_id')
+        //          ->get_all();
+
+
+        // var_dump($applications);
+        // die();
     
         $this->call->view('user/employer/jobLists', ['jobs' => $jobs, 'user' => $user, 'applications' => $applications]);
     }

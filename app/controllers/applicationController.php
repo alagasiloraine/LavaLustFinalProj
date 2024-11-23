@@ -81,7 +81,7 @@ class applicationController extends Controller {
                         ->join('jobs as job', 'j.job_id = job.job_id') // Join the jobs table for job details
                         ->join('employers as e', 'e.employer_id = job.employer_id') // Join the employers table for employer details
                         ->join('users as u', 'u.id = s.user_id') // User details for the jobseeker
-                        ->select('j.id as application_id, j.job_id, job.title as job_title, job.description as job_description, job.salary, job.location, job.status as job_status, e.company_name, e.contact_info, j.status as application_status, j.applied_at as application_date, j.first_name, j.last_name, j.email, j.resume')
+                        ->select('j.id as application_id, j.job_id, job.title as job_title, job.description as job_description, job.salary, job.location, job.status as job_status, e.company_name, e.contact_info, j.status as application_status, j.applied_at as application_date, j.first_name, j.last_name, j.email, j.resume, j.interview_date, j.interview_time')
                         ->where('s.user_id', $user_id) // Get applications for the logged-in user
                         ->get_all();
 
@@ -226,6 +226,8 @@ class applicationController extends Controller {
 
         $data = [
             'status' => $this->io->post('status'),
+            'interview_date' => null,
+            'interview_time' => null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
@@ -237,19 +239,20 @@ class applicationController extends Controller {
             $_SESSION['toastr'] = ['type' => 'error','message' => 'Failed to Update!'];
         }
 
-        $this->call->view('user/employer/jobApplications',[
-            'job' => $jobs,
-            'applications' => $applications,
-            'user' => $user_details
-        ]);
+        // $this->call->view('user/employer/jobApplications',[
+        //     'job' => $jobs,
+        //     'applications' => $applications,
+        //     'user' => $user_details
+        // ]);
         // redirect('user/employer/viewApplications', [
         //         'job' => $jobs,
         //         'applications' => $applications,
         //         'user' => $user_details
         //     ]);
-
-        // header("Location: /user/employer/viewApplications");
+        // header('Location: user/employer/viewApplications');
         // exit();
+
+        redirect('user/employer/viewApplications');
     }
 
     public function scheduleInterview($applicationId){
@@ -294,13 +297,16 @@ class applicationController extends Controller {
             $_SESSION['toastr'] = ['type' => 'error','message' => 'Failed to schedule interview!'];
         }
 
-        // redirect('user/employer/viewApplications/'. $jobs['job_id']);
+        redirect('user/employer/viewApplications');
 
-        $this->call->view('user/employer/jobApplications',[
-            'job' => $jobs,
-            'applications' => $applications,
-            'user' => $user_details
-        ]);
+        // header('Location: user/employer/viewApplications');
+        // exit();
+
+        // $this->call->view('user/employer/jobApplications',[
+        //     'job' => $jobs,
+        //     'applications' => $applications,
+        //     'user' => $user_details
+        // ]);
     }
     
     

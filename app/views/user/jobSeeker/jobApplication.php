@@ -66,17 +66,42 @@ include APP_DIR.'views/templates/header.php';
                         <div class="mt-6 flex space-x-4">
                            <!-- Edit Button: Only show if the application status is not "Cancelled" -->
                             <?php if ($application['application_status'] !== 'Cancelled'): ?>
-                                <button 
-                                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                                    onclick="document.getElementById('editModal<?= $index; ?>').classList.remove('hidden')">
-                                    Edit Application
-                                </button>
-                                <button 
-                                    class="bg-red-300 text-red-700 px-4 py-2 rounded hover:bg-red-400"
-                                    onclick="confirmCancel(<?= $application['application_id']; ?>)">
-                                    Cancel
-                                </button>
+                                <?php if ($application['application_status'] === 'Hired'): ?>
+                                    <button 
+                                        class="bg-green-500 text-white px-4 py-2 rounded"
+                                        disabled>
+                                        Hired
+                                    </button>
+                                <?php elseif ($application['application_status'] === 'Scheduled'): ?>
+                                    <button 
+                                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                        onclick="document.getElementById('scheduleModal<?= $index; ?>').classList.remove('hidden')">
+                                        View Schedule
+                                    </button>
+                                <?php else: ?>
+                                    <button 
+                                        class="bg-red-300 text-red-700 px-4 py-2 rounded hover:bg-red-400"
+                                        onclick="confirmCancel(<?= $application['application_id']; ?>)">
+                                        Cancel
+                                    </button>
+                                <?php endif; ?>
                             <?php endif; ?>
+
+                            <?php if ($application['application_status'] === 'Scheduled'): ?>
+                        <div id="scheduleModal<?= $index; ?>" class="hidden fixed inset-0 flex items-center justify-center z-50 bg-gray-600 bg-opacity-50">
+                            <div class="bg-white rounded-lg p-6 w-1/3">
+                                <h3 class="text-xl font-semibold mb-4">Scheduled Interview</h3>
+                                <p><strong>Interview Date:</strong> <?= htmlspecialchars($application['interview_date']); ?></p>
+                                <p><strong>Interview Time:</strong> <?= htmlspecialchars($application['interview_time']); ?></p>
+
+                                <button 
+                                    class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                    onclick="document.getElementById('scheduleModal<?= $index; ?>').classList.add('hidden')">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                         </div>
                     </div>

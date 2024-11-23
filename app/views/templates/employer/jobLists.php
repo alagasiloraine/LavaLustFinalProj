@@ -71,20 +71,33 @@
                         <p class="mb-2"><strong>Contact:</strong> <?= htmlspecialchars($job['contact_info']); ?></p>
                         <p class="mb-4"><strong>Status:</strong> <?= htmlspecialchars($job['status']); ?></p>
                         
-                        <!-- Apply button or Applied text -->
                         <?php if ($role === 'jobseeker'): ?>
                             <?php
+                                // Initialize flags
                                 $applied = false;
-                                // Check if the logged-in jobseeker has already applied for the job
+                                $hired = false;
+                                $scheduled = false;
+
+                                // Check the applications for this job
                                 foreach ($applications as $app) {
-                                    if ($app['job_id'] == $job['job_id'] && $app['status'] === 'Applied') {
-                                        $applied = true;
-                                        break;
+                                    if ($app['job_id'] == $job['job_id']) {
+                                        if ($app['status'] === 'Applied') {
+                                            $applied = true;
+                                        } elseif ($app['status'] === 'Hired') {
+                                            $hired = true;
+                                        } elseif ($app['status'] === 'Scheduled') {
+                                            $scheduled = true;
+                                        }
+                                        break; // Stop checking once a match is found
                                     }
                                 }
                             ?>
-                            <?php if ($applied): ?>
-                                <span class="text-green-500 font-semibold">Applied</span>
+                            <?php if ($hired): ?>
+                                <span class="text-green-500 font-semibold">Hired</span>
+                            <?php elseif ($scheduled): ?>
+                                <span class="text-yellow-500 font-semibold">Scheduled</span>
+                            <?php elseif ($applied): ?>
+                                <span class="text-blue-500 font-semibold">Applied</span>
                             <?php else: ?>
                                 <button 
                                     class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
@@ -94,6 +107,8 @@
                                 </button>
                             <?php endif; ?>
                         <?php endif; ?>
+
+
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>

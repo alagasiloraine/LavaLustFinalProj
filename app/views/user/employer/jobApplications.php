@@ -19,7 +19,7 @@ include APP_DIR.'views/templates/header.php';
         <!-- Check if there are applications to display -->
         <?php if (!empty($applications)): ?>
             <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-300">
+                <table id="applicationsTable" class="min-w-full bg-white border border-gray-300">
                     <thead>
                         <tr class="bg-gray-200">
                             <th class="py-2 px-4 text-left">Applicant Name</th>
@@ -63,12 +63,12 @@ include APP_DIR.'views/templates/header.php';
                                             <form id="hireForm_<?= $application['application_id'] ?>" action="<?= site_url('user/employer/updateApplicationStatus/'.$application['application_id']) ?>" method="POST" class="inline">
                                                 <input type="hidden" id="status" name="status" value="Hired">
                                                 <input type="hidden" id="job_id" name="job_id" value="<?= htmlspecialchars($application['job_id']) ?>">
-                                                <button type="button" onclick="confirmAction('Hire', <?= $application['application_id'] ?>)" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Hired</button>
+                                                <button type="button" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 hire-button" data-id="<?= $application['application_id'] ?>">Hired</button>
                                             </form>
                                             <form id="rejectForm_<?= $application['application_id'] ?>" action="<?= site_url('user/employer/updateApplicationStatus/'.$application['application_id']) ?>" method="POST" class="inline">
                                                 <input type="hidden" id="status" name="status" value="Rejected">
                                                 <input type="hidden" id="job_id" name="job_id" value="<?= htmlspecialchars($application['job_id']) ?>">
-                                                <button type="button" onclick="confirmAction('Reject', <?= $application['application_id'] ?>)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Rejected</button>
+                                                <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 reject-button" data-id="<?= $application['application_id'] ?>">Rejected</button>
                                             </form>
                                             <!-- Button to trigger modal -->
                                             <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="openModal(<?= $application['application_id'] ?>)">Schedule Interview</button>
@@ -81,8 +81,9 @@ include APP_DIR.'views/templates/header.php';
                             <div id="interviewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
                                 <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
                                     <h2 class="text-2xl font-bold mb-4">Schedule Interview</h2>
-                                    <form action="<?= site_url('user/employer/scheduleInterview/'. $application['application_id'] ) ?>" method="POST">
+                                    <form id="scheduleInterviewForm">
                                         <input type="hidden" id="job_id" name="job_id" value="<?= htmlspecialchars($application['job_id']) ?>">
+                                        <input type="hidden" id="application_id" name="application_id" value="">
 
                                         <div class="mb-4">
                                             <label for="interviewDate" class="block text-sm font-semibold text-gray-700">Interview Date</label>
@@ -99,6 +100,7 @@ include APP_DIR.'views/templates/header.php';
                                     </form>
                                 </div>
                             </div>
+
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -108,40 +110,109 @@ include APP_DIR.'views/templates/header.php';
         <?php endif; ?>
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Confirm action using SweetAlert
-        function confirmAction(action, applicationId) {
-            let formId = action.toLowerCase() + 'Form_' + applicationId;
-            let actionText = action === 'Hire' ? 'hire' : 'reject';
-
-            Swal.fire({
-                title: `Are you sure you want to ${action.toLowerCase()} this application?`,
-                text: `This action will mark the application as ${actionText}ed.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: `${action} Application`,
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById(formId).submit();
-                }
-            });
-        }
-
-        // Open the modal and set the applicant ID
-        function openModal(applicantId) {
+        function openModal(applicationId) {
             document.getElementById('interviewModal').classList.remove('hidden');
-            document.getElementById('applicantId').value = applicantId;
+            $('#application_id').val(applicationId); // Set the application ID in the hidden input
         }
 
         // Close the modal
         function closeModal() {
             document.getElementById('interviewModal').classList.add('hidden');
+            $('#scheduleInterviewForm')[0].reset(); // Reset the form fields
         }
+
+        // Handle AJAX form submission for scheduling an interview
+        $(document).on('submit', '#scheduleInterviewForm', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = $(this).serialize(); // Serialize the form data
+
+            // Show confirmation dialog before proceeding
+            Swal.fire({
+                title: 'Confirm Schedule',
+                text: 'Are you sure you want to schedule this interview?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, schedule it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with AJAX submission if confirmed
+                    $.ajax({
+                        url: '<?= site_url("user/employer/scheduleInterview/". $application["application_id"]) ?>', // Update this URL if necessary
+                        type: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Interview scheduled successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                closeModal(); // Close the modal
+                                window.location.reload(); // Refresh the page
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'There was an issue scheduling the interview.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.hire-button, .reject-button', function() {
+            var status = $(this).hasClass('hire-button') ? 'Hired' : 'Rejected'; // Determine the status
+            var formId = $(this).hasClass('hire-button') ? '#hireForm_' : '#rejectForm_'; // Get form ID
+            var form = $(formId + $(this).data('id')); // Target the specific form
+
+            // Show confirmation dialog before proceeding
+            Swal.fire({
+                title: `Confirm ${status}`,
+                text: `Are you sure you want to mark this applicant as ${status}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${status.toLowerCase()}!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Proceed with AJAX submission if confirmed
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: `Applicant has been marked as ${status}.`,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload(); // Reload the page
+                            });
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: `An error occurred while updating the status to ${status}.`,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
     </script>
 </body>
-</html>
