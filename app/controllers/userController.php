@@ -27,6 +27,24 @@ class userController extends Controller{
         ]);
     }
     
+    public function viewJobSeekerProfile($user_id)
+    {
+        $user_details = $this->db->select('*')
+        ->table('users')
+        ->where('id', $user_id)
+        ->get();
+
+        $job_seeker = $this->db->select('*')
+                ->table('job_seekers')
+                ->where('user_id', $user_id)
+                ->get();
+
+        $this->call->view('user/employer/viewSeekerProfile', [
+            'user' => $user_details,
+            'job_seeker' => $job_seeker
+        ]);
+    }
+
     public function employerProfile(){
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');  

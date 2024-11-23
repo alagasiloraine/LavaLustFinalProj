@@ -45,52 +45,60 @@
 <body class="bg-gray-100 text-gray-800">
     <div class="container mx-auto mt-8">
         <h1 class="text-3xl font-bold mb-6">Job Listings</h1>
+
+        <?php if($role === 'employer'): ?>
+            <!-- Button to trigger Job Post Modal -->
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#jobPostModal">
+                Post a Job
+            </button>
+        <?php endif;?>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php if (!empty($jobs)): ?>
-    <?php foreach ($jobs as $job): ?>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-2"><?= htmlspecialchars($job['title']); ?></h2>
-            <p class="text-gray-600 mb-4"><?= htmlspecialchars($job['description']); ?></p>
-            <p class="mb-2"><strong>Requirements:</strong> <?= htmlspecialchars($job['requirements']); ?></p>
-            <p class="mb-2"><strong>Location:</strong> <?= htmlspecialchars($job['location']); ?></p>
-            <p class="mb-2"><strong>Type:</strong> <?= htmlspecialchars($job['job_type']); ?></p>
-            <p class="mb-2"><strong>Salary:</strong> <?= htmlspecialchars($job['salary']); ?></p>
-            <p class="mb-4 text-sm text-gray-500">
-                Posted at: <span data-posted-at="<?= htmlspecialchars($job['posted_at']); ?>"></span>
-            </p>
-            <h3 class="text-lg font-bold mb-2">Employer Details</h3>
-            <p class="mb-2"><strong>Company:</strong> <?= htmlspecialchars($job['company_name']); ?></p>
-            <p class="mb-2"><strong>Contact:</strong> <?= htmlspecialchars($job['contact_info']); ?></p>
-            <p class="mb-4"><strong>Status:</strong> <?= htmlspecialchars($job['status']); ?></p>
-            
-            <!-- Apply button or Applied text -->
-            <?php if ($role === 'jobseeker'): ?>
-                <?php
-                    $applied = false;
-                    // Check if the logged-in jobseeker has already applied for the job
-                    foreach ($applications as $app) {
-                        if ($app['job_id'] == $job['job_id'] && $app['status'] === 'Applied') {
-                            $applied = true;
-                            break;
-                        }
-                    }
-                ?>
-                <?php if ($applied): ?>
-                    <span class="text-green-500 font-semibold">Applied</span>
-                <?php else: ?>
-                    <button 
-                        class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
-                        onclick="openModal(<?= $job['job_id']; ?>)"
-                        <?= $job['status'] === 'inactive' ? 'disabled' : ''; ?>>
-                        Apply to this Job
-                    </button>
-                <?php endif; ?>
+            <?php if (!empty($jobs)): ?>
+                <?php foreach ($jobs as $job): ?>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold mb-2"><?= htmlspecialchars($job['title']); ?></h2>
+                        <p class="text-gray-600 mb-4"><?= htmlspecialchars($job['description']); ?></p>
+                        <p class="mb-2"><strong>Requirements:</strong> <?= htmlspecialchars($job['requirements']); ?></p>
+                        <p class="mb-2"><strong>Location:</strong> <?= htmlspecialchars($job['location']); ?></p>
+                        <p class="mb-2"><strong>Type:</strong> <?= htmlspecialchars($job['job_type']); ?></p>
+                        <p class="mb-2"><strong>Salary:</strong> <?= htmlspecialchars($job['salary']); ?></p>
+                        <p class="mb-4 text-sm text-gray-500">
+                            Posted at: <span data-posted-at="<?= htmlspecialchars($job['posted_at']); ?>"></span>
+                        </p>
+                        <h3 class="text-lg font-bold mb-2">Employer Details</h3>
+                        <p class="mb-2"><strong>Company:</strong> <?= htmlspecialchars($job['company_name']); ?></p>
+                        <p class="mb-2"><strong>Contact:</strong> <?= htmlspecialchars($job['contact_info']); ?></p>
+                        <p class="mb-4"><strong>Status:</strong> <?= htmlspecialchars($job['status']); ?></p>
+                        
+                        <!-- Apply button or Applied text -->
+                        <?php if ($role === 'jobseeker'): ?>
+                            <?php
+                                $applied = false;
+                                // Check if the logged-in jobseeker has already applied for the job
+                                foreach ($applications as $app) {
+                                    if ($app['job_id'] == $job['job_id'] && $app['status'] === 'Applied') {
+                                        $applied = true;
+                                        break;
+                                    }
+                                }
+                            ?>
+                            <?php if ($applied): ?>
+                                <span class="text-green-500 font-semibold">Applied</span>
+                            <?php else: ?>
+                                <button 
+                                    class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
+                                    onclick="openModal(<?= $job['job_id']; ?>)"
+                                    <?= $job['status'] === 'inactive' ? 'disabled' : ''; ?>>
+                                    Apply to this Job
+                                </button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="text-gray-600">No jobs found.</p>
             <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p class="text-gray-600">No jobs found.</p>
-<?php endif; ?>
 
         </div>
     </div>

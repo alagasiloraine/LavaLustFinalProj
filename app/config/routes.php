@@ -57,6 +57,7 @@ $router->group('/auth', function() use ($router){
 
 $router->group('/user', function() use ($router) {
     $router->match('/jobseeker/profile', 'userController::jobSeekerProfile', ['POST', 'GET']);
+    $router->match('/jobseeker/profile/{id}', 'userController::viewJobSeekerProfile', ['POST', 'GET']);
     $router->match('/jobseeker/job/apply', 'applicationController::jobApply', ['POST', 'GET']);
     $router->match('/jobseeker/jobApplication', 'applicationController::getApplications', ['POST', 'GET']);
     $router->match('/jobseeker/update-application/{id}', 'applicationController::updateApplication', ['POST', 'GET']);
@@ -68,6 +69,9 @@ $router->group('/user', function() use ($router) {
     $router->match('/employer/jobPosts', 'jobController::jobPosts', ['POST', 'GET']);
     $router->match('/employer/updateJobPost/{id}', 'jobController::updateJobPost', ['POST', 'GET']);
     $router->match('/employer/deleteJob/{id}', 'jobController::deleteJob', ['POST', 'GET']);
+    $router->match('/employer/viewApplications', 'applicationController::viewApplications', ['POST', 'GET']);
+    $router->match('/employer/updateApplicationStatus/{id}', 'applicationController::updateApplicationStatus', ['POST', 'GET']);
+    $router->match('/employer/scheduleInterview/{id}', 'applicationController::scheduleInterview', ['POST', 'GET']);
 
     $router->match('/profile/edit-profile', 'userController::editProfile', ['POST', 'GET']);
     $router->match('/profile/editEmployerProfile', 'userController::editEmployerProfile', ['POST', 'GET']);

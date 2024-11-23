@@ -50,28 +50,23 @@ class JobController extends Controller {
     
         $user_id = $_SESSION['user_id'];
     
-        // Get user details
         $user = $this->db->select('seeker_id')
                          ->table('job_seekers')
                          ->where('user_id', $user_id)
                          ->get();
     
-        // Get job applications for this jobseeker
         $applications = $this->db->table('job_applications')
                                  ->where('seeker_id', $user['seeker_id'])
                                  ->get_all();
     
-        // Get job listings
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') 
                          ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
                          ->get_all();
     
-        // Pass data to the view
         $this->call->view('user/employer/jobLists', ['jobs' => $jobs, 'user' => $user, 'applications' => $applications]);
     }
-    
     
     public function jobPosts()
     {
@@ -82,18 +77,31 @@ class JobController extends Controller {
         $user_id = $_SESSION['user_id'];
 
         $user_details = $this->db->select('*')
-                    ->table('users')
-                    ->where('id', $user_id)
-                    ->get();
+            ->table('users')
+            ->where('id', $user_id)
+            ->get();
 
         $jobs = $this->db->table('jobs as j')
-            ->join('employers as e', 'j.employer_id = e.employer_id') 
+            ->join('employers as e', 'j.employer_id = e.employer_id')
             ->join('users as u', 'u.id = e.user_id')
-            ->where('u.id', $user_id) 
+            ->where('u.id', $user_id)
             ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status')
             ->get_all();
 
-        $this->call->view('user/employer/jobPost', ['jobs' => $jobs, 'user' => $user_details]);
+        $count = $this->db->table('jobs as j')
+                ->join('job_applications as ja', 'j.job_id = ja.job_id')
+                ->join('employers as e', 'j.employer_id = e.employer_id')
+                ->join('users as u', 'u.id = e.user_id')
+                ->where('u.id', $user_id)
+                ->select('j.job_id, count(ja.id) as application_count, ja.status')
+                ->group_by('j.job_id, ja.status')
+                ->get_all();
+
+        $this->call->view('user/employer/jobPost', [
+            'jobs' => $jobs,
+            'user' => $user_details,
+            'counts' => $count,
+        ]);
     }
 
     public function updateJobPost($job_id)

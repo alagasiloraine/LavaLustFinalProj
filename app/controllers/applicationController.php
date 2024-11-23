@@ -146,7 +146,8 @@ class applicationController extends Controller {
         }
 
         $data = [
-            'status' => 'Cancelled'
+            'status' => 'Cancelled',
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         $result = $this->db->table('job_applications')->where('id', $application_id)->update($data);
@@ -160,6 +161,148 @@ class applicationController extends Controller {
 
         redirect('user/jobseeker/jobApplication');
     }
+
+    public function viewApplications()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            redirect('auth/login');
+        }
+
+        $user_id = $_SESSION['user_id'];
+
+        $job_id = $this->io->post('job_id');
+
+        $user_details = $this->db->select('*')
+                        ->table('users')
+                        ->where('id', $user_id)
+                        ->get();
+
+        $jobs = $this->db->table('jobs')
+            ->where('job_id', $job_id)
+            ->get();
+
+        $applications = $this->db->table('job_applications as j')
+                        ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
+                        ->join('jobs as job', 'j.job_id = job.job_id') 
+                        ->join('employers as e', 'e.employer_id = job.employer_id') 
+                        ->join('users as u', 'u.id = s.user_id')
+                        ->select('u.id, j.id as application_id, job.job_id, j.job_id, j.applied_at, job.title as job_title, j.status as application_status, j.first_name, j.last_name, j.email, j.resume, s.full_name, s.skills, s.education, s.experience, s.location, s.seeker_id')
+                        ->where('j.job_id', $jobs['job_id']) 
+                        ->get_all();
+        
+        $this->call->view('user/employer/jobApplications', [
+            'job' => $jobs,
+            'applications' => $applications,
+            'user' => $user_details
+        ]);
+    }
+
+    public function updateApplicationStatus($applicationId){
+        if (!isset($_SESSION['user_id'])) {
+            redirect('auth/login');
+        }
+
+        $user_id = $_SESSION['user_id'];
+
+        $user_details = $this->db->select('*')
+                        ->table('users')
+                        ->where('id', $user_id)
+                        ->get();
+
+        $job_id = $this->io->post('job_id');
+
+        $jobs = $this->db->table('jobs')
+                ->where('job_id', $job_id)
+                ->get();
+
+        $applications = $this->db->table('job_applications as j')
+                        ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
+                        ->join('jobs as job', 'j.job_id = job.job_id') 
+                        ->join('employers as e', 'e.employer_id = job.employer_id') 
+                        ->join('users as u', 'u.id = s.user_id')
+                        ->select('u.id, j.id as application_id, job.job_id, j.job_id, j.applied_at, job.title as job_title, j.status as application_status, j.first_name, j.last_name, j.email, j.resume, s.full_name, s.skills, s.education, s.experience, s.location, s.seeker_id')
+                        ->where('j.job_id', $jobs['job_id']) 
+                        ->get_all();
+
+        $data = [
+            'status' => $this->io->post('status'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        $result = $this->db->table('job_applications')->where('id', $applicationId)->update($data);
+
+        if ($result) {
+            $_SESSION['toastr'] = ['type' =>'success','message' => 'Update successfully!'];
+        } else {
+            $_SESSION['toastr'] = ['type' => 'error','message' => 'Failed to Update!'];
+        }
+
+        $this->call->view('user/employer/jobApplications',[
+            'job' => $jobs,
+            'applications' => $applications,
+            'user' => $user_details
+        ]);
+        // redirect('user/employer/viewApplications', [
+        //         'job' => $jobs,
+        //         'applications' => $applications,
+        //         'user' => $user_details
+        //     ]);
+
+        // header("Location: /user/employer/viewApplications");
+        // exit();
+    }
+
+    public function scheduleInterview($applicationId){
+        if (!isset($_SESSION['user_id'])) {
+            redirect('auth/login');
+        }
+
+        $user_id = $_SESSION['user_id'];
+
+        $user_details = $this->db->select('*')
+                        ->table('users')
+                        ->where('id', $user_id)
+                        ->get();
+
+        $job_id = $this->io->post('job_id');
+
+        $jobs = $this->db->table('jobs')
+                ->where('job_id', $job_id)
+                ->get();
+
+        $applications = $this->db->table('job_applications as j')
+                        ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
+                        ->join('jobs as job', 'j.job_id = job.job_id') 
+                        ->join('employers as e', 'e.employer_id = job.employer_id') 
+                        ->join('users as u', 'u.id = s.user_id')
+                        ->select('u.id, j.id as application_id, job.job_id, j.job_id, j.applied_at, job.title as job_title, j.status as application_status, j.first_name, j.last_name, j.email, j.resume, s.full_name, s.skills, s.education, s.experience, s.location, s.seeker_id')
+                        ->where('j.job_id', $jobs['job_id']) 
+                        ->get_all();
+
+        $data = [
+            'status' => 'Scheduled',
+            'interview_date' => $this->io->post('interview_date'),
+            'interview_time' => $this->io->post('interview_time'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        $result = $this->db->table('job_applications')->where('id', $applicationId)->update($data);
+
+        if ($result) {
+            $_SESSION['toastr'] = ['type' =>'success','message' => 'Interview scheduled successfully!'];
+        } else {
+            $_SESSION['toastr'] = ['type' => 'error','message' => 'Failed to schedule interview!'];
+        }
+
+        // redirect('user/employer/viewApplications/'. $jobs['job_id']);
+
+        $this->call->view('user/employer/jobApplications',[
+            'job' => $jobs,
+            'applications' => $applications,
+            'user' => $user_details
+        ]);
+    }
+    
     
 
 }

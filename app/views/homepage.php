@@ -14,13 +14,15 @@ include APP_DIR.'views/templates/header.php';
             });
         </script>
         <?php unset($_SESSION['toastr']); endif; ?>
-      <?php
-      include APP_DIR.'views/templates/employer/jobLists.php';
-      ?> 
+    
+    <?php
+        include APP_DIR.'views/templates/employer/jobLists.php';
+    ?> 
 
-      <?php
-      include APP_DIR.'views/templates/employer/postModal.php';
-      ?>  
+    <?php
+        include APP_DIR.'views/templates/employer/postModal.php';
+    ?>  
+    
 
     </div>
 
