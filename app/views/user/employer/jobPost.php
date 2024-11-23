@@ -4,7 +4,7 @@ include APP_DIR.'views/templates/header.php';
 <body class="bg-gray-50 text-gray-800">
 
     <?php
-      include APP_DIR.'views/templates/nav.php';
+        include APP_DIR.'views/templates/nav.php';
     ?>  
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6 text-center">Your Job Posts</h1>
@@ -126,7 +126,7 @@ include APP_DIR.'views/templates/header.php';
                 }
             });
         }
-        
+
         function confirmDelete(event, jobId) {
             event.preventDefault(); 
 

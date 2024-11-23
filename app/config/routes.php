@@ -57,6 +57,10 @@ $router->group('/auth', function() use ($router){
 
 $router->group('/user', function() use ($router) {
     $router->match('/jobseeker/profile', 'userController::jobSeekerProfile', ['POST', 'GET']);
+    $router->match('/jobseeker/job/apply', 'applicationController::jobApply', ['POST', 'GET']);
+    $router->match('/jobseeker/jobApplication', 'applicationController::getApplications', ['POST', 'GET']);
+    $router->match('/jobseeker/update-application/{id}', 'applicationController::updateApplication', ['POST', 'GET']);
+    $router->match('/jobseeker/cancel-application/{id}', 'applicationController::cancelApplication', ['POST', 'GET']);
 
     $router->match('/employer/profile', 'userController::employerProfile', ['POST', 'GET']);
     $router->match('/employer/job-post', 'jobController::jobPost', ['POST', 'GET']);
