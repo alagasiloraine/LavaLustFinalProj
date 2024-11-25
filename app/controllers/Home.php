@@ -60,13 +60,22 @@ class Home extends Controller {
         if ($jobs === false) {
             $jobs = []; // Default to empty if no jobs found
         }
-    
-        $this->call->view('homepage', [
-            'user' => $user_details,
-            'jobs' => $jobs,
-            'application' => $application,
-            'applications' => $applications,
-        ]);
+
+        if ($user_details['role'] === 'admin') {
+            redirect('admin/Dashboard');
+        } else {
+            $this->call->view('homepage', [
+                'user' => $user_details,
+                'jobs' => $jobs,
+                'application' => $application,
+                'applications' => $applications,
+            ]);
+        }
+
+    }
+
+    public function dashboard() {
+        $this->call->view('admin/adminDashboard');
     }
     
 }

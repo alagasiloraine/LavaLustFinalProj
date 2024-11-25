@@ -197,6 +197,19 @@ class Lauth {
     	}
 	}
 
+	public function get_role($user_id)
+	{
+		$row = $this->LAVA->db
+                        ->table('users')
+                        ->select('role')                    
+                        ->where('id', $user_id)
+                        ->limit(1)
+                        ->get();
+        if($row) {
+            return html_escape($row['role']);
+        }
+	}
+
 	/**
 	 * Get User Role
 	 * @return string Role from Session

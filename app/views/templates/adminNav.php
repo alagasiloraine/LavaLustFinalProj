@@ -31,7 +31,7 @@
         </a>
       </div>
       <div class="nav-item">
-        <a href="<?=site_url('admin/analytics');?>" class="nav-link active">
+        <a href="<?=site_url('admin/analytics');?>" class="nav-link">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
           </svg>
@@ -70,7 +70,7 @@
 
     <div class="nav-menu mt-auto">
       <div class="nav-item">
-        <a href="<?=site_url('auth/login');?>" class="nav-link">
+        <a href="<?=site_url('auth/logout');?>" class="nav-link">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>

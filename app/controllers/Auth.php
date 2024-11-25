@@ -13,6 +13,17 @@ class Auth extends Controller {
         }
         $this->call->library('email');
     }
+
+    public function admin() {
+        // if(!logged_in()) {
+        //     redirect('auth');
+        // }
+        // if($this->lauth->is_admin()) {
+            $this->call->view('admin/adminDashboard');
+        // } else {
+        //     redirect('home');
+        // }
+    }
 	
     public function index() {
         $this->call->view('auth/login');
@@ -28,6 +39,10 @@ class Auth extends Controller {
                 $this->session->set_flashdata(['err_message' => 'These credentials do not match our records.']);
 			} else {
 				$this->lauth->set_logged_in($data);
+
+                // if ($this->lauth->get_role() === 'admin') {
+                //     $this->call->view('admin/adminDashboard'); // Redirect to admin dashboard
+                // }
 			}
             redirect('auth/login');
         } else {
@@ -35,6 +50,44 @@ class Auth extends Controller {
         }
         
     }
+
+    // public function login()
+    // {
+    //     if ($this->form_validation->submitted()) {
+    //         $email = $this->io->post('email');
+    //         $password = $this->io->post('password');
+    //         $data = $this->lauth->login($email, $password);
+
+    //         if (empty($data)) {
+    //             // Set flash messages for invalid credentials
+    //             $this->session->set_flashdata(['is_invalid' => 'is-invalid']);
+    //             $this->session->set_flashdata(['err_message' => 'These credentials do not match our records.']);
+    //             redirect('auth/login');
+    //         } else {
+    //             // Log the user in
+    //             $this->lauth->set_logged_in($data);
+
+    //             // Check user role and redirect accordingly
+    //             if (isset($data['role'])) {
+    //                 if ($data['role'] === 'admin') {
+    //                     redirect('admin/dashboard'); // Redirect to admin dashboard
+    //                 } 
+    //                 // else {
+    //                 //     redirect('home'); // Redirect to homepage for regular users
+    //                 // }
+    //             } else {
+    //                 // If role is not set, log the user out and show error
+    //                 $this->session->set_flashdata(['err_message' => 'Invalid user role.']);
+    //                 $this->lauth->logout();
+    //                 redirect('auth/login');
+    //             }
+    //         }
+    //     } else {
+    //         // Show login view
+    //         $this->call->view('auth/login');
+    //     }
+    // }
+
 
     public function register() {
 

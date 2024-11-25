@@ -11,7 +11,22 @@ class adminController extends Controller{
   }
 
   public function jobs() {
-    $this->call->view('admin/adminJobs');
+     // Retrieve jobs with employer details
+     $jobs = $this->db->table('jobs as j')
+     ->join('employers as e', 'j.employer_id = e.employer_id') // Join with employers table
+     ->join('users as u', 'e.user_id = u.id') // Join with users table (optional if needed)
+     ->select(
+         'j.job_id, j.title, j.description, j.requirements, j.location, 
+         j.job_type, j.salary, j.posted_at, j.status, 
+         e.company_name, e.contact_info, e.company_address, e.profile_picture, 
+         u.email as employer_email' // Include fields from the employer and user
+     )
+     ->get_all();
+
+    //  var_dump($jobs);
+    //  die();
+
+    $this->call->view('admin/adminJobs', ['jobs' => $jobs]);
   }
 
   public function jobSeekers() {
@@ -22,24 +37,4 @@ class adminController extends Controller{
     $this->call->view('admin/adminApplication');
   }
 
-  public function addJobs(){
-    try {
-
-        $data = array(
-            'employer_id' => 1, // Assuming you are using a fixed ID here
-            'title' => $this->io->post['job_title'],
-            'description' => $this->io->post['job_description'],
-            'requirements' => $this->io->post['expertise'],
-            'location' => $this->io->post['location'],
-            'job_type' => $this->io->post['job_type'],
-            'salary' => $this->io->post['salary'],
-            'experience' => $this->io->post['experience'],
-            'posted_at' => date('Y-m-d H:i:s'),
-            'status' => 'active',
-        );
-
-    } catch (\Exception $e) {
-
-    }
-  }
 }
