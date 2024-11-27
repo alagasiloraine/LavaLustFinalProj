@@ -41,9 +41,28 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="<?=site_url('auth/logout');?>" class="text-gray-800 hover:text-indigo-600">Logout</a>
+                    <a href="javascript:void(0);"class="text-gray-800 hover:text-indigo-600"  onclick="confirmLogout()">Logout</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+<script>
+function confirmLogout() {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You will be logged out!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, log me out',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect to the logout route
+            window.location.href = '<?= site_url("auth/logout"); ?>';
+        }
+    });
+}
+</script>

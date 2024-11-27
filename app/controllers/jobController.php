@@ -120,17 +120,17 @@ class JobController extends Controller {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');
         }
-
+    
         if (!$job_id || !is_numeric($job_id)) {
             die('Invalid Job ID.');
         }
-
+    
         $current_job = $this->db->table('jobs')->where('job_id', $job_id)->get();
-
+    
         if (!$current_job) {
             die('Job not found.');
         }
-
+    
         $title = $this->io->post('title');
         $description = $this->io->post('description');
         $requirements = $this->io->post('requirements');
@@ -138,7 +138,8 @@ class JobController extends Controller {
         $salary = $this->io->post('salary');
         $job_type = $this->io->post('job_type');
         $status = $this->io->post('status');
-
+    
+        // Prepare the update data
         $data = [
             'title' => !empty($title) ? $title : $current_job['title'],
             'description' => !empty($description) ? $description : $current_job['description'],
@@ -149,9 +150,14 @@ class JobController extends Controller {
             'status' => !empty($status) ? $status : $current_job['status'],
             'updated_at' => date('Y-m-d H:i:s') // Track when the job was updated
         ];
-
+    
+        // Check if the status is being updated to "inactive"
+        if ($status === 'inactive' && $current_job['status'] !== 'inactive') {
+            $data['inactive_timestamp'] = date('Y-m-d H:i:s');
+        }
+    
         $result = $this->db->table('jobs')->where('job_id', $job_id)->update($data);
-
+    
         if ($result) {
             $_SESSION['success'] = 'Job post updated successfully!';
             redirect('user/employer/jobPosts');
@@ -160,6 +166,7 @@ class JobController extends Controller {
             redirect('user/employer/jobPosts');
         }
     }
+    
 
     public function deleteJob($job_id) {
         if (!isset($_SESSION['user_id'])) {
@@ -170,11 +177,21 @@ class JobController extends Controller {
             die('Invalid Job ID.');
         }
     
+        // Check if job exists
         $job = $this->db->table('jobs')->where('job_id', $job_id)->get();
         if (!$job) {
             die('Job not found.');
         }
     
+        // Check if there are any applications for this job
+        $applications = $this->db->table('job_applications')->where('job_id', $job_id)->get();
+        if ($applications) {
+            $_SESSION['error'] = 'This job post cannot be deleted because there are existing applications.';
+            redirect('user/employer/jobPosts'); // Redirect to the job posts page
+            return; // Exit function if there are applications
+        }
+    
+        // Proceed with deletion if no applications are found
         $result = $this->db->table('jobs')->where('job_id', $job_id)->delete();
     
         if ($result) {
@@ -185,6 +202,7 @@ class JobController extends Controller {
             redirect('user/employer/jobPosts'); // Redirect to the job posts page
         }
     }
+    
 
     public function saveJob() {
         
