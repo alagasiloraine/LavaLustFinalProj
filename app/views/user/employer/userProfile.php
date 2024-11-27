@@ -39,9 +39,9 @@ include APP_DIR.'views/templates/header.php';
 
                         <!-- Job Seeker Details -->
                         <hr>
-                        <p><strong>Company Name:</strong> <?= $employer['company_name']; ?></p>
-                        <p><strong>Company Address:</strong> <?= $employer['company_address']; ?></p>
-                        <p><strong>Contact Information:</strong> <?= $employer['contact_info']; ?></p>
+                        <p><strong>Company Name:</strong><?= isset($employer['company_name']) ? $employer['company_name'] : 'Not Provided'; ?></p>
+                        <p><strong>Company Address:</strong><?= isset($employer['company_address']) ? $employer['company_address'] : 'Not Provided'; ?></p>
+                        <p><strong>Contact Information:</strong><?= isset($employer['contact_info']) ? $employer['contact_info'] : 'Not Provided'; ?></p>
 
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">

@@ -25,6 +25,7 @@
                     <a href="<?=site_url('user/employer/jobPosts');?>" class="text-indigo-600 hover:text-indigo-800">Job Posts</a>
                 <?php else: ?>
                     <a href="<?=site_url('user/jobseeker/jobApplication');?>" class="text-indigo-600 hover:text-indigo-800">Job Application</a>
+                    <a href="<?=site_url('user/jobseeker/saved-jobs');?>" class="text-indigo-600 hover:text-indigo-800">Saved Jobs</a>
                 <?php endif; ?>
                 <li class="nav-item">
                     <?php

@@ -62,6 +62,8 @@ $router->group('/user', function() use ($router) {
     $router->match('/jobseeker/jobApplication', 'applicationController::getApplications', ['POST', 'GET']);
     $router->match('/jobseeker/update-application/{id}', 'applicationController::updateApplication', ['POST', 'GET']);
     $router->match('/jobseeker/cancel-application/{id}', 'applicationController::cancelApplication', ['POST', 'GET']);
+    $router->match('/jobseeker/save-job', 'jobController::saveJob', ['POST', 'GET']);
+    $router->match('/jobseeker/saved-jobs', 'jobController::savedJobs', ['POST', 'GET']);
 
     $router->match('/employer/profile', 'userController::employerProfile', ['POST', 'GET']);
     $router->match('/employer/job-post', 'jobController::jobPost', ['POST', 'GET']);

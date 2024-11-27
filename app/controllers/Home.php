@@ -50,7 +50,17 @@ class Home extends Controller {
         if ($application === false) {
             $application = []; // Default to empty if no applications found
         }
-    
+
+        $saved_jobs = $this->db->table('saved_jobs')
+                ->where('jobseeker_id', $seeker_id)
+                ->get();
+
+        // print_r($saved_jobs);
+                // ->getResultArray(); // Fetch the result as an array
+
+        // Extract job IDs into a simple array
+        // $saved_job_ids = array_column($saved_jobs, 'job_id');
+
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') // Optional: Include user details if needed
@@ -69,6 +79,7 @@ class Home extends Controller {
                 'jobs' => $jobs,
                 'application' => $application,
                 'applications' => $applications,
+                'saved_jobs' => $saved_jobs,
             ]);
         }
 
