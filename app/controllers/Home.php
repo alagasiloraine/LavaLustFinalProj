@@ -22,6 +22,11 @@ class Home extends Controller {
                                  ->table('users')
                                  ->where('id', $user_id)
                                  ->get();
+
+        // if ($user_details['status'] === 'inactive') {
+        //     $_SESSION['error'] = 'Failed to update user status. Please try again.';
+        //     $this->call->view('auth/login');
+        // }
     
         if ($user_details === false || empty($user_details)) {
             redirect('auth/login');
@@ -48,27 +53,21 @@ class Home extends Controller {
                                 ->get_all();
     
         if ($application === false) {
-            $application = []; // Default to empty if no applications found
+            $application = [];
         }
 
         $saved_jobs = $this->db->table('saved_jobs')
                 ->where('jobseeker_id', $seeker_id)
                 ->get();
 
-        // print_r($saved_jobs);
-                // ->getResultArray(); // Fetch the result as an array
-
-        // Extract job IDs into a simple array
-        // $saved_job_ids = array_column($saved_jobs, 'job_id');
-
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
-                         ->join('users as u', 'u.id = e.user_id') // Optional: Include user details if needed
+                         ->join('users as u', 'u.id = e.user_id') 
                          ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
                          ->get_all();
     
         if ($jobs === false) {
-            $jobs = []; // Default to empty if no jobs found
+            $jobs = []; 
         }
 
         if ($user_details['role'] === 'admin') {

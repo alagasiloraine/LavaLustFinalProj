@@ -9,7 +9,7 @@
 <aside class="sidebar" id="sidebar">
     <div class="logo">
       <div class="logo-icon">
-        <img src="/images/imagelogo1.png" alt="Career Connect Logo">
+        <img src="../../../public/images/imagelogo1.png" alt="Career Connect Logo">
       </div>
       <div class="logo-text-wrapper">
         <span class="logo-text">Career Connect</span>
@@ -51,13 +51,21 @@
         </a>
       </div>
       <div class="nav-item">
+        <a href="<?=site_url('admin/employer');?>" class="nav-link">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <span class="nav-text">Employer</span>
+        </a>
+      </div>
+      <!-- <div class="nav-item">
         <a href="<?=site_url('admin/applications');?>" class="nav-link">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
           <span class="nav-text">Applications</span>
         </a>
-      </div>
+      </div> -->
       <div class="nav-item">
         <a href="<?=site_url('admin/jobseekers');?>" class="nav-link">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

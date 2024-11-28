@@ -88,4 +88,7 @@ $router->group('/admin', function() use ($router){
     $router->match('/jobseekers', 'adminController::jobSeekers', ['POST', 'GET']);
     $router->match('/applications', 'adminController::application', ['POST', 'GET']);
     $router->match('/deleteJob/{id}', 'adminController::deleteJob', ['POST', 'GET']);
+    $router->match('/deactivateUser/{id}', 'adminController::deactivateUser', ['POST', 'GET']);
+    $router->match('/download/{resume}', 'adminController::downloadResume', ['POST', 'GET']);
+    $router->match('/employer', 'adminController::employer', ['POST', 'GET']);
 });

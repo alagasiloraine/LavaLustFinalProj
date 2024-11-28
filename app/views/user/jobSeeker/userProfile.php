@@ -46,6 +46,7 @@ include APP_DIR.'views/templates/nav.php';
                     <p><strong>Location:</strong> <?= isset($job_seeker['location']) ? $job_seeker['location'] : 'Not Provided'; ?></p>
                     <p><strong>Bio:</strong> <?= isset($job_seeker['bio']) ? $job_seeker['bio'] : 'Not Provided'; ?></p>
                     <p><strong>Skills:</strong> <?= isset($job_seeker['skills']) ? $job_seeker['skills'] : 'Not Provided'; ?></p>
+                    <p><strong>Skills:</strong> <?= isset($job_seeker['phone']) ? $job_seeker['phone'] : 'Not Provided'; ?></p>
                     <p><strong>Education:</strong> <?= isset($job_seeker['education']) ? $job_seeker['education'] : 'Not Provided'; ?></p>
                     <p><strong>Experience:</strong> <?= isset($job_seeker['experience']) ? $job_seeker['experience'] : 'Not Provided'; ?></p>
                     <p><strong>Availability:</strong> <?= isset($job_seeker['availability']) ? $job_seeker['availability'] : 'Not Provided'; ?></p>
@@ -99,6 +100,10 @@ include APP_DIR.'views/templates/nav.php';
                     <div class="mb-3">
                         <label for="skills" class="form-label">Skills</label>
                         <input type="text" class="form-control" id="skills" name="skills" value="<?= isset($job_seeker['skills']) ? $job_seeker['skills'] : ''; ?>" placeholder="List your skills (comma separated)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="number" class="form-control" id="phone" name="phone" value="<?= isset($job_seeker['phone']) ? $job_seeker['phone'] : ''; ?>" placeholder="">
                     </div>
                     <div class="mb-3">
                         <label for="education" class="form-label">Education</label>

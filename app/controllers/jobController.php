@@ -167,7 +167,6 @@ class JobController extends Controller {
         }
     }
     
-
     public function deleteJob($job_id) {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login'); // Redirect to login if user is not authenticated
@@ -203,7 +202,6 @@ class JobController extends Controller {
         }
     }
     
-
     public function saveJob() {
         
         if (!isset($_SESSION['user_id'])) {

@@ -201,20 +201,22 @@ class applicationController extends Controller {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');
         }
-
+    
         $user_id = $_SESSION['user_id'];
-
+    
+        // Get user details
         $user_details = $this->db->select('*')
                         ->table('users')
                         ->where('id', $user_id)
                         ->get();
-
+    
+        // Get job details
         $job_id = $this->io->post('job_id');
-
         $jobs = $this->db->table('jobs')
                 ->where('job_id', $job_id)
                 ->get();
-
+    
+        // Get the application details
         $applications = $this->db->table('job_applications as j')
                         ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
                         ->join('jobs as job', 'j.job_id = job.job_id') 
@@ -223,38 +225,42 @@ class applicationController extends Controller {
                         ->select('u.id, j.id as application_id, job.job_id, j.job_id, j.applied_at, job.title as job_title, j.status as application_status, j.first_name, j.last_name, j.email, j.resume, s.full_name, s.skills, s.education, s.experience, s.location, s.seeker_id')
                         ->where('j.job_id', $jobs['job_id']) 
                         ->get_all();
-
+    
+        // Assuming you are working with the first application in the array
+        $application = $applications[0]; // If there's only one application
+        $status = $this->io->post('status');
+    
+        // Check if status is 'Hired', and update job seeker's availability to 'Employed'
+        if ($status === 'Hired') {
+            // Update availability in the job_seekers table
+            $available = [
+                'availability' => 'Employed',
+            ];
+    
+            $this->db->table('job_seekers')
+                     ->where('seeker_id', $application['seeker_id']) // Use seeker_id from the application
+                     ->update($available);
+        }
+    
+        // Update the job application status
         $data = [
-            'status' => $this->io->post('status'),
+            'status' => $status,
             'interview_date' => null,
             'interview_time' => null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
-
+    
         $result = $this->db->table('job_applications')->where('id', $applicationId)->update($data);
-
+    
         if ($result) {
             $_SESSION['toastr'] = ['type' =>'success','message' => 'Update successfully!'];
         } else {
             $_SESSION['toastr'] = ['type' => 'error','message' => 'Failed to Update!'];
         }
-
-        // $this->call->view('user/employer/jobApplications',[
-        //     'job' => $jobs,
-        //     'applications' => $applications,
-        //     'user' => $user_details
-        // ]);
-        // redirect('user/employer/viewApplications', [
-        //         'job' => $jobs,
-        //         'applications' => $applications,
-        //         'user' => $user_details
-        //     ]);
-        // header('Location: user/employer/viewApplications');
-        // exit();
-
+    
         redirect('user/employer/viewApplications');
     }
-
+    
     public function scheduleInterview($applicationId){
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');

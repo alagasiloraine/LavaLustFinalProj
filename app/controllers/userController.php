@@ -80,6 +80,7 @@ class userController extends Controller{
             'location' => $this->io->post('location'),
             'bio' => $this->io->post('bio'),
             'skills' => $this->io->post('skills'),
+            'phone' => $this->io->post('phone'),
             'education' => $this->io->post('education'),
             'experience' => $this->io->post('experience'),
             'availability' => $this->io->post('availability'),

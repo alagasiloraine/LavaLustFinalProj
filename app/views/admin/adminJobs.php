@@ -100,11 +100,10 @@
                 <div class="job-actions">
                   <button type="button" class="job-action-btn" onclick="toggleModal('showModal-<?= $job['job_id'] ?>')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        <path d="M12 4C7.03 4 3.17 7.36 2.21 10.59a1 1 0 000 .82C3.17 16.64 7.03 20 12 20c4.97 0 8.83-3.36 9.79-6.59a1 1 0 000-.82C20.83 7.36 16.97 4 12 4zm0 12c-2.94 0-5.5-2.07-6.36-4.95C6.5 10.07 9.06 8 12 8c2.94 0 5.5 2.07 6.36 4.95C17.5 15.93 14.94 17 12 17z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                   </button>
-
                   <button class="job-action-btn delete" type="button" onclick="confirmDelete(event, <?= $job['job_id'] ?>)" title="Delete">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M3 6h18"></path>
