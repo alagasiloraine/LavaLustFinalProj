@@ -55,5 +55,6 @@ include APP_DIR.'views/templates/header.php';
     //     $('#jobPostModal').modal('hide');
     //   });
     </script>
+        <?php include APP_DIR.'views/templates/footer.php'; ?>
 </body>
 </html>

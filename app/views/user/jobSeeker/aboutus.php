@@ -30,7 +30,7 @@
         /* Hero Section Styles */
         .about-hero {
             background: linear-gradient(135deg, #2B6CB0 0%, #1A365D 100%);
-            min-height: 400px;
+            min-height: 200px;
             padding: 60px 0;
             display: flex;
             align-items: center;
@@ -426,5 +426,7 @@
         });
     });
     </script>
+<?php include APP_DIR.'views/templates/footer.php'; ?>
+
 </body>
 </html>

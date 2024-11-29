@@ -10,8 +10,17 @@ include APP_DIR.'views/templates/header.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-/* CSS styles */
-        /* Main Layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
         .profile-container {
             display: grid;
             grid-template-columns: 300px 1fr;
@@ -688,6 +697,8 @@ include APP_DIR.'views/templates/header.php';
         });
     });
 </script>
+
+<?php include APP_DIR.'views/templates/footer.php'; ?>
 
 </body>
 </html>

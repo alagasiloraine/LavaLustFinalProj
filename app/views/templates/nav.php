@@ -10,7 +10,7 @@
         <div class="navbar-links">
             <ul>
                 <li><a href="<?= site_url('home'); ?>">Home</a></li>
-                <li><a href="<?= site_url('user/jobs') ?>">Find a Job</a></li>
+                <li><a href="<?= site_url('user/jobs') ?>">Find Job</a></li>
                 <li><a href="/user/aboutUs">About Us</a></li>
                 <li><a href="/user/Contact">Contact Us</a></li>
             </ul>
