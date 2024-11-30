@@ -100,6 +100,26 @@ include APP_DIR.'views/templates/header.php';
                                     <input type="text" class="form-control" id="salary" name="salary" value="<?= htmlspecialchars($job['salary']) ?>" required>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="Software Development">Software Development</option>
+                                        <option value="Web Development & Design">Web Development & Design</option>
+                                        <option value="Data & Analytics">Data & Analytics</option>
+                                        <option value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</option>
+                                        <option value="Cloud Computing & DevOps">Cloud Computing & DevOps</option>
+                                        <option value="Cybersecurity">Cybersecurity</option>
+                                        <option value="IT Infrastructure & Networking">IT Infrastructure & Networking</option>
+                                        <option value="IT Management & Leadership">IT Management & Leadership</option>
+                                        <option value="Software Testing & Quality Assurance">Software Testing & Quality Assurance</option>
+                                        <option value="Database Management">Database Management</option>
+                                        <option value="Emerging Technologies">Emerging Technologies</option>
+                                        <option value="Technical Writing & Documentation">Technical Writing & Documentation</option>
+                                        <option value="IT Sales & Consulting">IT Sales & Consulting</option>
+                                        <option value="Specialized IT Fields">Specialized IT Fields</option>
+                                    </select>
+                                </div>
+
                                 <!-- Job Type -->
                                 <div class="mb-3">
                                     <label for="jobType" class="form-label">Job Type</label>

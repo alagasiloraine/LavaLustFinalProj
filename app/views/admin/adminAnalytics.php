@@ -495,204 +495,322 @@
         <div class="analytics-header">
             <h1 class="analytics-title">Analytics</h1>
             <div class="dashboard-actions">
-                <div class="select-wrapper">
-                    <select>
-                        <option>Last 30 days</option>
-                        <option>Last 7 days</option>
-                        <option>Last 90 days</option>
-                        <option>Custom range</option>
-                    </select>
-                </div>
             </div>
         </div>
 
         <div class="analytics-content">
-            <aside class="analytics-sidebar">
-                <div class="filter-group">
-                    <label class="filter-label">Metrics</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" class="checkbox-input" checked>
-                            Job Views
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" class="checkbox-input" checked>
-                            Applications
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" class="checkbox-input" checked>
-                            Success Rate
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" class="checkbox-input" checked>
-                            Response Time
-                        </label>
-                    </div>
-                </div>
-
+            <!-- <aside class="analytics-sidebar">
                 <div class="filter-group">
                     <label class="filter-label">Job Categories</label>
                     <select class="filter-select">
                         <option>All Categories</option>
-                        <option>Technology</option>
-                        <option>Marketing</option>
-                        <option>Sales</option>
-                        <option>Finance</option>
-                        <option>Design</option>
+                        <option value="Software Development">Software Development</option>
+                        <option value="Web Development & Design">Web Development & Design</option>
+                        <option value="Data & Analytics">Data & Analytics</option>
+                        <option value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</option>
+                        <option value="Cloud Computing & DevOps">Cloud Computing & DevOps</option>
+                        <option value="Cybersecurity">Cybersecurity</option>
+                        <option value="IT Infrastructure & Networking">IT Infrastructure & Networking</option>
+                        <option value="IT Management & Leadership">IT Management & Leadership</option>
+                        <option value="Software Testing & Quality Assurance">Software Testing & Quality Assurance</option>
+                        <option value="Database Management">Database Management</option>
+                        <option value="Emerging Technologies">Emerging Technologies</option>
+                        <option value="Technical Writing & Documentation">Technical Writing & Documentation</option>
+                        <option value="IT Sales & Consulting">IT Sales & Consulting</option>
+                        <option value="Specialized IT Fields">Specialized IT Fields</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">Location</label>
+                    <label class="filter-label">Job Type</label>
                     <select class="filter-select">
-                        <option>All Locations</option>
+                        <option>All</option>
+                        <option>Full-time</option>
+                        <option>Part-time</option>
                         <option>Remote</option>
-                        <option>On-site</option>
-                        <option>Hybrid</option>
                     </select>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Custom Date Range</label>
-                    <div class="date-range">
-                        <input type="date" class="date-input" placeholder="Start date">
-                        <input type="date" class="date-input" placeholder="End date">
-                    </div>
-                </div>
-            </aside>
+            
+            </aside> -->
 
             <div class="analytics-main">
                 <div class="metric-card">
                     <div class="metric-header">
                         <h3 class="metric-title">Job Performance Overview</h3>
-                        <div class="select-wrapper">
-                            <select>
-                                <option>All Jobs</option>
-                                <option>Active Jobs</option>
-                                <option>Closed Jobs</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <h3 class="stat-title">Total Views</h3>
-                            <div class="stat-value">15,234</div>
-                            <div class="stat-change positive">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 15l-6-6-6 6" />
-                                </svg>
-                                18.2%
-                            </div>
-                        </div>
-                        <div class="stat-card">
                             <h3 class="stat-title">Applications</h3>
-                            <div class="stat-value">1,876</div>
-                            <div class="stat-change positive">
+                            <div class="stat-value"><?= $currentWeek['appliedApplications'] ?? '0'; ?></div>
+                            <div class="stat-change <?= $rates['appliedRate'] >= 0 ? 'positive' : 'negative'; ?>">
+                            <?php if ($rates['appliedRate'] >= 0) :?>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 15l-6-6-6 6" />
+                                <path d="M18 15l-6-6-6 6" />
                                 </svg>
-                                12.5%
+                            <?php else :?>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            <?php endif;?>
+                            <?= number_format($rates['appliedRate'], 1) . '%'; ?>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <h3 class="stat-title">Success Rate</h3>
-                            <div class="stat-value">68%</div>
-                            <div class="stat-change positive">
+                            <h3 class="stat-title">Active Jobs</h3>
+                            <div class="stat-value"><?= $currentWeek['jobs'] ?? '0'; ?></div>
+                            <div class="stat-change <?= $rates['jobsRate'] >= 0 ? 'positive' : 'negative'; ?>">
+                            <?php if ($rates['jobsRate'] >= 0) :?>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 15l-6-6-6 6" />
+                                <path d="M18 15l-6-6-6 6" />
                                 </svg>
-                                5.3%
+                            <?php else :?>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            <?php endif;?>
+                            <?= number_format($rates['jobsRate'], 1) . '%'; ?>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <h3 class="stat-title">Avg. Response Time</h3>
-                            <div class="stat-value">2.4 days</div>
-                            <div class="stat-change negative">
+                            <h3 class="stat-title">Inactive Jobs</h3>
+                            <div class="stat-value"><?= $currentWeek['inactiveJobs'] ?? '0'; ?></div>
+                            <div class="stat-change <?= $rates['inactiveJobsRate'] >= 0 ? 'negative' : 'positive'; ?>">
+                            <?php if ($rates['inactiveJobsRate'] >= 0) :?>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M6 9l6 6 6-6" />
+                                <path d="M18 15l-6-6-6 6" />
                                 </svg>
-                                1.8%
+                            <?php else :?>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            <?php endif;?>
+                            <?= number_format($rates['inactiveJobsRate'], 1) . '%'; ?>
                             </div>
                         </div>
                     </div>
                     <div class="metric-chart">
-                        <svg width="100%" height="100%" viewBox="0 0 400 300">
-                            <rect x="0" y="0" width="400" height="300" fill="#f8fafc" />
-                            <polyline
-                                fill="none"
-                                stroke="#6366F1"
-                                stroke-width="2"
-                                points="
-                                50,250
-                                100,200
-                                150,220
-                                200,180
-                                250,150
-                                300,100
-                                350,50
-                            " />
-                            <g fill="#1e293b" font-size="12">
-                                <text x="50" y="270">Mon</text>
-                                <text x="100" y="270">Tue</text>
-                                <text x="150" y="270">Wed</text>
-                                <text x="200" y="270">Thu</text>
-                                <text x="250" y="270">Fri</text>
-                                <text x="300" y="270">Sat</text>
-                                <text x="350" y="270">Sun</text>
-                            </g>
-                            <g fill="#1e293b" font-size="12">
-                                <text x="10" y="250">0</text>
-                                <text x="10" y="200">25</text>
-                                <text x="10" y="150">50</text>
-                                <text x="10" y="100">75</text>
-                                <text x="10" y="50">100</text>
-                            </g>
-                        </svg>
+                        <canvas id="applicationsByCategoryAndDateChart" width="1000" height="300"></canvas>
                     </div>
                 </div>
 
                 <div class="metric-card">
                     <div class="metric-header">
-                        <h3 class="metric-title">Application Sources</h3>
-                        <div class="select-wrapper">
-                            <select>
-                                <option>Last 30 days</option>
-                                <option>Last 90 days</option>
-                                <option>Last 12 months</option>
-                            </select>
-                        </div>
+                        <h3 class="metric-title">Application Status</h3>
                     </div>
                     <div class="metric-chart">
-                        <svg width="100%" height="100%" viewBox="0 0 400 300">
-                            <rect x="0" y="0" width="400" height="300" fill="#f8fafc" />
-                            <!-- Bars -->
-                            <rect x="50" y="50" width="200" height="30" fill="#6366F1" />
-                            <rect x="50" y="90" width="160" height="30" fill="#22c55e" />
-                            <rect x="50" y="130" width="140" height="30" fill="#ef4444" />
-                            <rect x="50" y="170" width="120" height="30" fill="#f59e0b" />
-                            <rect x="50" y="210" width="100" height="30" fill="#3b82f6" />
+                        <canvas id="applicationsByStatusChart" width="1000" height="300"></canvas>
+                    </div>
+                </div>
 
-                            <!-- Labels -->
-                            <g fill="#1e293b" font-size="12">
-                                <text x="260" y="70">Direct (45%)</text>
-                                <text x="260" y="110">Job Boards (30%)</text>
-                                <text x="260" y="150">Social Media (15%)</text>
-                                <text x="260" y="190">Referrals (7%)</text>
-                                <text x="260" y="230">Other (3%)</text>
-                            </g>
-
-                            <!-- Axis -->
-                            <line x1="50" y1="40" x2="50" y2="250" stroke="#64748b" stroke-width="1" />
-                            <g fill="#64748b" font-size="10">
-                                <text x="45" y="40" text-anchor="end">0%</text>
-                                <text x="45" y="250" text-anchor="end">50%</text>
-                            </g>
-                        </svg>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Job Type</h3>
+                    </div>
+                    <div class="metric-chart">
+                        <canvas id="jobsByTypeChart" width="1000" height="300"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const applicationsByStatus = <?= json_encode($applicationsByStatus); ?>;
+
+    const labels = applicationsByStatus.map(app => app.status);
+    const data = applicationsByStatus.map(app => app.application_count);
+
+    const ctx = document.getElementById('applicationsByStatusChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,  // The status names (Hired, Applied, Scheduled, Rejected)
+            datasets: [{
+                label: 'Application Count',
+                data: data,  // The count of applications for each status
+                backgroundColor: [
+                    'rgba(99, 102, 241, 0.5)',   // Hired
+                    'rgba(34, 167, 240, 0.5)',   // Applied
+                    'rgba(252, 165, 165, 0.5)',  // Scheduled
+                    'rgba(239, 68, 68, 0.5)'     // Rejected
+                ],
+                borderColor: [
+                    'rgba(99, 102, 241, 1)',   // Hired
+                    'rgba(34, 167, 240, 1)',   // Applied
+                    'rgba(252, 165, 165, 1)',  // Scheduled
+                    'rgba(239, 68, 68, 1)'     // Rejected
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',  // This makes the bars horizontal
+            plugins: {
+                legend: {
+                    display: false  // You can disable the legend if it's not needed
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Number of Applications'
+                    },
+                    beginAtZero: true,  // Ensure the x-axis starts at 0
+                    ticks: {
+                        stepSize: 1, // Ensure that the ticks are whole numbers
+                        callback: function(value) {
+                            return value % 1 === 0 ? value : ''; // Only display whole numbers
+                        }
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Application Status'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1, // Ensure that the ticks are whole numbers
+                        callback: function(value) {
+                            return value % 1 === 0 ? value : ''; // Only display whole numbers
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    
+    const rawData = <?= json_encode($applicationsByCategoryAndDate); ?>;
+
+    const categoryData = {};
+    rawData.forEach(row => {
+        if (!categoryData[row.job_category]) {
+            categoryData[row.job_category] = {};
+        }
+        categoryData[row.job_category][row.application_date] = row.application_count;
+    });
+
+    const allDates = Array.from(new Set(rawData.map(row => row.application_date))).sort();
+
+    const colors = [
+        'rgba(99, 102, 241, 1)', // Blue
+        'rgba(255, 99, 132, 1)', // Red
+        'rgba(54, 162, 235, 1)', // Light Blue
+        'rgba(255, 159, 64, 1)', // Orange
+        'rgba(75, 192, 192, 1)', // Teal
+        'rgba(153, 102, 255, 1)', // Purple
+        'rgba(255, 205, 86, 1)', // Gold
+        'rgba(201, 203, 207, 1)'  // Light Grey
+    ];
+
+    const datasets = Object.keys(categoryData).map((category, index) => {
+        return {
+            label: category,
+            data: allDates.map(date => categoryData[category][date] || 0), // Fill missing dates with 0
+            borderColor: colors[index % colors.length],
+            borderWidth: 2,
+            fill: false
+        };
+    });
+
+    const ctx2 = document.getElementById('applicationsByCategoryAndDateChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: allDates, // Dates on the x-axis
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Applications'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1, // Ensure that the ticks are whole numbers
+                        callback: function(value) {
+                            return value % 1 === 0 ? value : ''; // Only display whole numbers
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+
+    const jobsByType = <?= json_encode($jobsByType); ?>;
+
+    const jobTypes = jobsByType.map(job => job.job_type);
+    const jobCounts = jobsByType.map(job => job.job_count);
+
+    const colors2 = {
+        full_time: 'rgba(54, 162, 235, 1)', // Blue
+        part_time: 'rgba(255, 99, 132, 1)', // Red
+        remote: 'rgba(75, 192, 192, 1)'    // Teal
+    };
+
+    const backgroundColors = jobTypes.map(type => colors2[type] || 'rgba(153, 102, 255, 1)'); // Default color for unknown types
+
+    const ctx3 = document.getElementById('jobsByTypeChart').getContext('2d');
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: jobTypes, // Job types on the y-axis
+            datasets: [{
+                label: 'Number of Jobs',
+                data: jobCounts,
+                backgroundColor: backgroundColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Makes it a horizontal bar chart
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Number of Jobs'
+                    },
+                    beginAtZero: true
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Job Type'
+                    }
+                }
+            }
+        }
+    });
+
+</script>
 </body>
 
 </html>

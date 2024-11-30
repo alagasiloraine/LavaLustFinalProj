@@ -63,7 +63,7 @@ class Home extends Controller {
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') 
-                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
+                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info')
                          ->get_all();
     
         if ($jobs === false) {
@@ -84,9 +84,9 @@ class Home extends Controller {
 
     }
 
-    public function dashboard() {
-        $this->call->view('admin/adminDashboard');
-    }
+    // public function dashboard() {
+    //     $this->call->view('admin/adminDashboard');
+    // }
     
 }
 ?>

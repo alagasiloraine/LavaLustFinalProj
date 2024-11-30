@@ -81,7 +81,7 @@ $router->group('/user', function() use ($router) {
 } );
 
 $router->group('/admin', function() use ($router){
-    $router->match('/Dashboard', 'Home::dashboard', ['POST', 'GET']);
+    $router->match('/dashboard', 'adminController::dashboard', ['POST', 'GET']);
     $router->match('/analytics', 'adminController::analytics', ['POST', 'GET']); 
     $router->match('/jobs', 'adminController::jobs', ['POST', 'GET']);
     $router->match('/jobs/add-jobs', 'adminController::addJobs', ['POST', 'GET']);
@@ -91,4 +91,7 @@ $router->group('/admin', function() use ($router){
     $router->match('/deactivateUser/{id}', 'adminController::deactivateUser', ['POST', 'GET']);
     $router->match('/download/{resume}', 'adminController::downloadResume', ['POST', 'GET']);
     $router->match('/employer', 'adminController::employer', ['POST', 'GET']);
+    $router->match('/test', 'adminController::test', ['POST', 'GET']);
+    $router->match('/getapplication', 'adminController::getApplication', ['POST', 'GET']);
+
 });

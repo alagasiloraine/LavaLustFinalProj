@@ -75,6 +75,7 @@
                             <p class="mb-2"><strong>Location:</strong> <?= htmlspecialchars($job['location']); ?></p>
                             <p class="mb-2 job-type"><strong>Type:</strong> <?= htmlspecialchars($job['job_type']); ?></p>
                             <p class="mb-2"><strong>Salary:</strong> <?= htmlspecialchars($job['salary']); ?></p>
+                            <p class="mb-2"><strong>Category:</strong> <?= htmlspecialchars($job['category'] ?? 'Undefined'); ?></p>
                             <p class="mb-4 text-sm text-gray-500">
                                 Posted at: <span data-posted-at="<?= htmlspecialchars($job['posted_at']); ?>"></span>
                             </p>
