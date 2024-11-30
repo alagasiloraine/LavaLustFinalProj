@@ -52,6 +52,7 @@ $router->group('/auth', function() use ($router){
     $router->get('/logout', 'Auth::logout');
     $router->match('/password-reset', 'Auth::password_reset', ['POST', 'GET']);
     $router->match('/set-new-password', 'Auth::set_new_password', ['POST', 'GET']);
+    $router->match('/verify_code', 'Auth::verify_code', ['POST', 'GET']);
 });
 
 

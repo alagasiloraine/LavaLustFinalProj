@@ -11,6 +11,9 @@
     <!-- Styles -->
     <link href="<?=base_url();?>public/css/main.css" rel="stylesheet">
     <link href="<?=base_url();?>public/css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body>
     <?php
@@ -23,6 +26,17 @@
                     <div class="card">
                         <div class="card-header">Login</div>
                         <div class="card-body">
+                        <?php if (isset($_SESSION['success'])): ?>
+                            <script>
+                                toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+                            </script>
+                            <?php unset($_SESSION['success']); ?>
+                        <?php elseif (isset($_SESSION['error'])): ?>
+                            <script>
+                                toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+                            </script>
+                            <?php unset($_SESSION['error']); ?>
+                        <?php endif; ?>
                           	<?php flash_alert() ;?>
                             <form id="logForm" method="POST" action="<?=site_url('auth/login');?>">
                                 <?php csrf_field(); ?>

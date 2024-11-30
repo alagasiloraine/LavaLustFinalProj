@@ -15,14 +15,7 @@ class Auth extends Controller {
     }
 
     public function admin() {
-        // if(!logged_in()) {
-        //     redirect('auth');
-        // }
-        // if($this->lauth->is_admin()) {
-            $this->call->view('admin/adminDashboard');
-        // } else {
-        //     redirect('home');
-        // }
+        $this->call->view('admin/adminDashboard');
     }
 	
     public function index() {
@@ -38,16 +31,15 @@ class Auth extends Controller {
 				$this->session->set_flashdata(['is_invalid' => 'is-invalid']);
                 $this->session->set_flashdata(['err_message' => 'These credentials do not match our records.']);
 			} else {
-				// $userStatus = $this->db->table('users')->select('status')->where('email', $email)->get();
 
-                // if ($userStatus['status'] === 'inactive') {
-                //     $_SESSION['error'] = 'Failed to login due to inactive status of your account.';
+                $userStatus = $this->db->table('users')->select('isVerified')->where('email', $email)->get();
 
-                //     $this->call->view('user/inactive');
-                // } else {
+                if ($userStatus['isVerified'] === '0') {
+                    $_SESSION['error'] = 'Failed to login due to unverified email.';
+                    redirect('auth/login');
+                } else {
                     $this->lauth->set_logged_in($data);
-                // }
-
+                }
 			}
             redirect('auth/login');
         } else {
@@ -56,51 +48,132 @@ class Auth extends Controller {
         
     }
 
-    public function register() {
+    // public function register() {
 
-        if($this->form_validation->submitted()) {
+    //     if($this->form_validation->submitted()) {
+    //         $username = $this->io->post('username');
+    //         $email = $this->io->post('email');
+	// 		$email_token = bin2hex(random_bytes(50));
+    //         $this->form_validation
+    //             ->name('username')
+    //                 ->required()
+    //                 ->is_unique('users', 'username', $username, 'Username was already taken.')
+    //                 ->min_length(5, 'Username name must not be less than 5 characters.')
+    //                 ->max_length(20, 'Username name must not be more than 20 characters.')
+    //                 ->alpha_numeric_dash('Special characters are not allowed in username.')
+    //             ->name('password')
+    //                 ->required()
+    //             ->name('password_confirmation')
+    //                 ->required()
+    //                 ->matches('password', 'Passwords did not match.')
+    //             ->name('email')
+    //                 ->required()
+    //                 ->is_unique('users', 'email', $email, 'Email was already taken.')
+    //             ->name('role')
+    //                 ->required();
+    //             if($this->form_validation->run()) {
+    //                 if($this->lauth->register($username, $email, $this->io->post('password'), $email_token, $this->io->post('role'))) {
+    //                     $data = $this->lauth->login($email, $this->io->post('password'));
+    //                     $this->lauth->set_logged_in($data);
+    //                     redirect('home');
+    //                 } else {
+    //                     set_flash_alert('danger', config_item('SQLError'));
+    //                 }
+    //             }  else {
+    //                 set_flash_alert('danger', $this->form_validation->errors()); 
+    //                 redirect('auth/register');
+    //             }
+    //     } else {
+    //         $this->call->view('auth/register');
+    //     }
+    // }
+
+    public function register() {
+        if ($this->form_validation->submitted()) {
             $username = $this->io->post('username');
             $email = $this->io->post('email');
-            // $role = $this->io->post('role');
-			$email_token = bin2hex(random_bytes(50));
+            $verification_code = random_int(100000, 999999); // Generate a 6-digit random code
+    
             $this->form_validation
                 ->name('username')
                     ->required()
                     ->is_unique('users', 'username', $username, 'Username was already taken.')
-                    ->min_length(5, 'Username name must not be less than 5 characters.')
-                    ->max_length(20, 'Username name must not be more than 20 characters.')
+                    ->min_length(5, 'Username must not be less than 5 characters.')
+                    ->max_length(20, 'Username must not be more than 20 characters.')
                     ->alpha_numeric_dash('Special characters are not allowed in username.')
                 ->name('password')
                     ->required()
-                    //->min_length(8, 'Password must not be less than 8 characters.')
                 ->name('password_confirmation')
                     ->required()
-                    //->min_length(8, 'Password confirmation name must not be less than 8 characters.')
                     ->matches('password', 'Passwords did not match.')
                 ->name('email')
                     ->required()
                     ->is_unique('users', 'email', $email, 'Email was already taken.')
                 ->name('role')
                     ->required();
-                if($this->form_validation->run()) {
-                    if($this->lauth->register($username, $email, $this->io->post('password'), $email_token, $this->io->post('role'))) {
-                        $data = $this->lauth->login($email, $this->io->post('password'));
-                        $this->lauth->set_logged_in($data);
-                        redirect('home');
+    
+            if ($this->form_validation->run()) {
+                if ($this->lauth->register($username, $email, $this->io->post('password'), $verification_code, $this->io->post('role'))) {
+                    // Send verification email with the generated code
+                    $email_lib = new Email();  // Instantiate the Email class
+                    if ($email_lib->send_verification_email($email, $username, $verification_code)) {
+                        // Store the email in session for verification
+                        $_SESSION['verification_email'] = $email; 
+    
+                        set_flash_alert('success', 'Registration successful! Please check your email for the verification code.');
+                        redirect('auth/verify_code'); // Redirect to the page where user can enter the code
                     } else {
-                        set_flash_alert('danger', config_item('SQLError'));
+                        set_flash_alert('danger', 'Failed to send verification email. Please try again.');
+                        redirect('auth/register');
                     }
-                }  else {
-                    set_flash_alert('danger', $this->form_validation->errors()); 
-                    redirect('auth/register');
+                } else {
+                    set_flash_alert('danger', config_item('SQLError'));
                 }
+            } else {
+                set_flash_alert('danger', $this->form_validation->errors());
+                redirect('auth/register');
+            }
         } else {
             $this->call->view('auth/register');
         }
-        
-        
-
     }
+    
+    
+
+    public function verify_code() {
+        if ($this->form_validation->submitted()) {
+            $email = $_SESSION['verification_email'] ?? null;  // Retrieve the email from session
+            $input_code = $this->io->post('verification_code');
+    
+            if (!$email) {
+                set_flash_alert('danger', 'Session expired. Please register again.');
+                redirect('auth/register');
+            }
+    
+            $user = $this->db->table('users')->select('*')->where('email', $email)->get();
+    
+            if ($user && $user['email_token'] == $input_code) {
+
+                $data = [
+                    'isVerified' => 1,
+                    'email_token' => null,
+                    'email_verified_at' => date('Y-m-d H:i:s')
+                ];
+                $this->db->Table('users')->where('id', $user['id'])->update($data);
+    
+                unset($_SESSION['verification_email']); // Clear session after successful verification
+                set_flash_alert('success', 'Email verified successfully! You can now log in.');
+                redirect('auth/login');
+            } else {
+                set_flash_alert('danger', 'Invalid verification code. Please try again.');
+            }
+        }
+    
+        $this->call->view('auth/verify_code');
+    }
+    
+    
+    
 
     private function send_password_token_to_email($email, $token) {
 		$template = file_get_contents(ROOT_DIR.PUBLIC_DIR.'/templates/reset_password_email.html');

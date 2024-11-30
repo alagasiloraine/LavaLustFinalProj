@@ -31,7 +31,7 @@ class Home extends Controller {
         if ($user_details === false || empty($user_details)) {
             redirect('auth/login');
         }
-    
+
         $user = $this->db->select('seeker_id')
                          ->table('job_seekers')
                          ->where('user_id', $user_id)
@@ -72,6 +72,8 @@ class Home extends Controller {
 
         if ($user_details['role'] === 'admin') {
             redirect('admin/Dashboard');
+        } elseif ($user_details['isVerified'] === '0') { 
+            redirect('auth/login');
         } else {
             $this->call->view('homepage', [
                 'user' => $user_details,
