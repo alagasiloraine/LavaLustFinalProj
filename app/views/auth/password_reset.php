@@ -1,57 +1,237 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reset Password</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - CareerConnect</title>
     <link rel="icon" type="image/png" href="<?=base_url();?>public/img/favicon.ico"/>
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-    <!-- Styles -->
-    <link href="<?=base_url();?>public/css/main.css" rel="stylesheet">
-    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+            width: 900px;
+            max-width: 100%;
+            min-height: 550px;
+            display: flex;
+            margin: 2rem;
+        }
+
+        .form-container {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .info-container {
+            background: linear-gradient(to right, #305586, #003479);
+            color: #fff;
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 0 30px 30px 0;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #003479;
+        }
+
+        .form-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            transition: border-color 0.3s;
+        }
+
+        .input-with-icon input:focus {
+            border-color: #003479;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #003479;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #002456;
+        }
+
+        .info-container img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .info-container h2 {
+            margin-bottom: 20px;
+        }
+
+        .info-container p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .back-to-login {
+            display: inline-block;
+            padding: 12px 45px;
+            background-color: transparent;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-to-login:hover {
+            background-color: #fff;
+            color: #003479;
+        }
+
+        .feedback {
+            margin-top: 8px;
+            font-size: 14px;
+            display: none; /* Hide by default */
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+        }
+
+        .valid-feedback {
+            color: #198754;
+        }
+
+        /* Show feedback when the alert class is present */
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .is-valid ~ .valid-feedback {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .info-container {
+                border-radius: 0 0 30px 30px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <?php
-    include APP_DIR.'views/templates/nav_auth.php';
-    ?>
-    <main class="py-4">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">Reset Password</div>
-                        <div class="card-body">
-                            <form method="POST" action="<?=site_url('auth/password-reset');?>">
-                                <?php csrf_field(); ?>
-                                <div class="row mb-3">
-                                    <label for="email" class="col-md-4 col-form-label text-md-end">Email Address</label>
-                                    <div class="col-md-6">
-                                        <?php $LAVA =& lava_instance(); ?>
-                                        <input id="email" type="email" class="form-control <?=$LAVA->session->flashdata('alert');?>" name="email" required>
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>We can&#039;t find a user with that email address.</strong>
-                                        </span>
-                                        <span class="valid-feedback" role="alert">
-                                            <strong>Reset password link was sent to your email.</strong>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="row mb-0">
-                                    <div class="col-md-6 offset-md-4">
-                                        <button type="submit" class="btn btn-primary">
-                                            Send Password Reset Link
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+    <div class="container">
+        <div class="form-container">
+            <h1>Reset Password</h1>
+            <p class="form-description">Enter your email address and we'll send you a link to reset your password</p>
+            
+            <form method="POST" action="<?=site_url('auth/password-reset');?>">
+                <?php csrf_field(); ?>
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <?php $LAVA =& lava_instance(); ?>
+                        <input 
+                            id="email" 
+                            type="email" 
+                            name="email" 
+                            class="<?=$LAVA->session->flashdata('alert');?>"
+                            required
+                        >
+                    </div>
+                    <!-- Feedback messages - hidden by default -->
+                    <div class="invalid-feedback feedback" role="alert">
+                        <strong>We can't find a user with that email address.</strong>
+                    </div>
+                    <div class="valid-feedback feedback" role="alert">
+                        <strong>Reset password link was sent to your email.</strong>
                     </div>
                 </div>
-            </div>
+
+                <button type="submit">
+                    Send Password Reset Link
+                </button>
+            </form>
         </div>
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        
+        <div class="info-container">
+            <img src="<?=base_url();?>public/images/imagelogo1.png" alt="CareerConnect Logo">
+            <h2>CareerConnect</h2>
+            <p>This website is the ultimate job portal for IT graduates and professionals, linking you with top tech employers and exciting career opportunities in the IT fields.</p>
+            <a href="<?=site_url('auth/login');?>" class="back-to-login">BACK TO LOGIN</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

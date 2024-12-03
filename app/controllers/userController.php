@@ -238,6 +238,39 @@ class userController extends Controller{
     
         redirect('user/employer/profile');
     }
+public function jobApplication(){
+    if (!isset($_SESSION['user_id'])) {
+        redirect('auth/login');  
+    }
 
+    $user_id = $_SESSION['user_id'];
+
+    $user_details = $this->db->select('*')
+                            ->table('users')
+                            ->where('id', $user_id)
+                            ->get();
+
+
+    $this->call->view('user/jobSeeker/jobApplication',[
+       'user' => $user_details, 
+    ]);
+}
+
+public function savedJob(){
+    if (!isset($_SESSION['user_id'])) {
+        redirect('auth/login');  
+    }
+
+    $user_id = $_SESSION['user_id'];
+
+    $user_details = $this->db->select('*')
+                            ->table('users')
+                            ->where('id', $user_id)
+                            ->get();
+
+    $this->call->view('user/jobSeeker/savedjob',[
+        'user' => $user_details, 
+     ]);
+}
 
 }

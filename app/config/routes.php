@@ -87,3 +87,8 @@ $router->get('/user/aboutUs', 'userController::aboutUs');
 $router->get('/user/Contact', 'userController::Contact');
 
 $router->get('/user/homePage', 'userController::homePage');
+
+$router->get('/user/jobApplication', 'userController::jobApplication');
+
+$router->get('/user/savedJob', 'userController::savedJob');
+
