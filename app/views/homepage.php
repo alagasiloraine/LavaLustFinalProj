@@ -15,13 +15,11 @@ include APP_DIR.'views/templates/header.php';
         </script>
         <?php unset($_SESSION['toastr']); endif; ?>
 
-        <?php if ($role === 'employer'): ?>
-            <!-- Button to trigger the modal -->
+        <!-- <?php if ($role === 'employer'): ?>
             <button type="button" class="btn-modal" onclick="openModal()">
                 Post a Job
             </button>
 
-            <!-- Modal -->
             <div id="jobPostModal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -78,7 +76,6 @@ include APP_DIR.'views/templates/header.php';
                 </div>
             </div>
 
-            <!-- JavaScript to control modal visibility -->
             <script>
                 // Function to open the modal
                 function openModal() {
@@ -99,7 +96,6 @@ include APP_DIR.'views/templates/header.php';
                 }
             </script>
 
-            <!-- Styles for modal -->
             <style>
                 /* Button styles */
                 .btn-modal {
@@ -195,7 +191,7 @@ include APP_DIR.'views/templates/header.php';
                 }
             </style>
 
-        <?php endif; ?>
+        <?php endif; ?> -->
     
     <?php
         include APP_DIR.'views/templates/employer/jobLists.php';

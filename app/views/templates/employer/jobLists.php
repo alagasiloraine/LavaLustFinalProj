@@ -14,6 +14,10 @@
     <div class="container mx-auto mt-8">
         <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Job Listings</h1>
 
+        <?php
+            include APP_DIR.'views/templates/employer/postModal.php';
+        ?> 
+
         <div class="mb-6 flex flex-col md:flex-row md:justify-between gap-4">
             <div class="flex-grow">
                 <input
