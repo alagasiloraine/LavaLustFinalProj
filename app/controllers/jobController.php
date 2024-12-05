@@ -232,12 +232,15 @@ class JobController extends Controller {
             if ($this->db->table('saved_jobs')->insert($data)){
                 $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Job saved successfully!'];
                 echo json_encode(['status' => 'success', 'message' => 'Job saved successfully.']);
+                redirect('jobs');
             } else {
                 $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to save job. Please try again.'];
+                echo json_encode(['status' => 'error','message' => 'Failed to save job. Please try again.']);
+                redirect('jobs');
             }
         }
 
-        redirect('home');
+        redirect('jobs');
     }
 
     public function savedJobs() {

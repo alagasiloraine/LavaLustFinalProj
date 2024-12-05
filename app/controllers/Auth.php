@@ -48,46 +48,6 @@ class Auth extends Controller {
         
     }
 
-    // public function register() {
-
-    //     if($this->form_validation->submitted()) {
-    //         $username = $this->io->post('username');
-    //         $email = $this->io->post('email');
-	// 		$email_token = bin2hex(random_bytes(50));
-    //         $this->form_validation
-    //             ->name('username')
-    //                 ->required()
-    //                 ->is_unique('users', 'username', $username, 'Username was already taken.')
-    //                 ->min_length(5, 'Username name must not be less than 5 characters.')
-    //                 ->max_length(20, 'Username name must not be more than 20 characters.')
-    //                 ->alpha_numeric_dash('Special characters are not allowed in username.')
-    //             ->name('password')
-    //                 ->required()
-    //             ->name('password_confirmation')
-    //                 ->required()
-    //                 ->matches('password', 'Passwords did not match.')
-    //             ->name('email')
-    //                 ->required()
-    //                 ->is_unique('users', 'email', $email, 'Email was already taken.')
-    //             ->name('role')
-    //                 ->required();
-    //             if($this->form_validation->run()) {
-    //                 if($this->lauth->register($username, $email, $this->io->post('password'), $email_token, $this->io->post('role'))) {
-    //                     $data = $this->lauth->login($email, $this->io->post('password'));
-    //                     $this->lauth->set_logged_in($data);
-    //                     redirect('home');
-    //                 } else {
-    //                     set_flash_alert('danger', config_item('SQLError'));
-    //                 }
-    //             }  else {
-    //                 set_flash_alert('danger', $this->form_validation->errors()); 
-    //                 redirect('auth/register');
-    //             }
-    //     } else {
-    //         $this->call->view('auth/register');
-    //     }
-    // }
-
     public function register() {
         if ($this->form_validation->submitted()) {
             $username = $this->io->post('username');
@@ -137,8 +97,6 @@ class Auth extends Controller {
             $this->call->view('auth/register');
         }
     }
-    
-    
 
     public function verify_code() {
         if ($this->form_validation->submitted()) {
@@ -172,21 +130,23 @@ class Auth extends Controller {
         $this->call->view('auth/verify_code');
     }
     
-    
-    
-
     private function send_password_token_to_email($email, $token) {
-		$template = file_get_contents(ROOT_DIR.PUBLIC_DIR.'/templates/reset_password_email.html');
-		$search = array('{token}', '{base_url}');
-		$replace = array($token, base_url());
-		$template = str_replace($search, $replace, $template);
-		$this->email->recipient($email);
-		$this->email->subject('LavaLust Reset Password'); //change based on subject
-		$this->email->sender('sample@email.com'); //change based on sender email
-		$this->email->reply_to('sample@email.com'); // change based on sender email
-		$this->email->email_content($template, 'html');
-		$this->email->send();
-	}
+        $template = file_get_contents(ROOT_DIR . PUBLIC_DIR . '/templates/reset_password_email.html');
+        $search = ['{token}', '{base_url}'];
+        $replace = [$token, base_url()];
+        $emailContent = str_replace($search, $replace, $template);
+    
+        $mailer = new Email();
+        $username = "User"; // Replace with dynamic username if available
+        $subject = "LavaLust Reset Password"; // Subject for the email
+    
+        if ($mailer->send_verification_email($email, $username, $emailContent)) {
+            return true;
+        } else {
+            error_log("Failed to send reset password email to $email");
+            return false;
+        }
+    }
 
 	public function password_reset() {
 		if($this->form_validation->submitted()) {
@@ -196,15 +156,21 @@ class Auth extends Controller {
 			if($this->form_validation->run()) {
 				if($token = $this->lauth->reset_password($email)) {
 					$this->send_password_token_to_email($email, $token);
-                    $this->session->set_flashdata(['alert' => 'is-valid']);
+                    $_SESSION['success'] = 'Password Reset Link Send. Check your email.';
+                    redirect('auth/password-reset');
 				} else {
 					$this->session->set_flashdata(['alert' => 'is-invalid']);
+                    $_SESSION['error'] = 'Failed to reset password. Please try again.';
+                    redirect('auth/password-reset');
 				}
 			} else {
 				set_flash_alert('danger', $this->form_validation->errors());
+                redirect('auth/password-reset');
 			}
-		}
-		$this->call->view('auth/password_reset');
+            redirect('auth/password-reset');
+		} else {
+            $this->call->view('auth/password_reset');
+        }
 	}
 
     public function set_new_password() {
@@ -222,17 +188,21 @@ class Auth extends Controller {
 						->matches('password', 'Passwords did not matched.');
 						if($this->form_validation->run()) {
 							if($this->lauth->reset_password_now($token, $password)) {
-								set_flash_alert('success', 'Password was successfully updated.');
+                                $_SESSION['success'] = 'Password successfully Renewed. You can now proceed to login again.';
+                                redirect('/auth/set-new-password');
 							} else {
 								set_flash_alert('danger', config_item('SQLError'));
+                                $_SESSION['error'] = 'Failed to renew password. Please try again.';
+                                redirect('/auth/set-new-password');
 							}
 						} else {
 							set_flash_alert('danger', $this->form_validation->errors());
 						}
 			} else {
-				set_flash_alert('danger', 'Reset token is missing.');
+                $_SESSION['error'] = 'Reset token is missing.';
+                redirect('auth/password-reset');
 			}
-    	redirect('auth/set-new-password/?token='.$token);
+            redirect('/auth/set-new-password');
         } else {
              $token = $_GET['token'] ?? '';
             if(! $this->lauth->get_reset_password_token($token) && (! empty($token) || ! isset($token))) {

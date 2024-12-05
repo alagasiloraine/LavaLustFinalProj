@@ -55,8 +55,15 @@ $router->group('/auth', function() use ($router){
     $router->match('/verify_code', 'Auth::verify_code', ['POST', 'GET']);
 });
 
+$router->match('/jobs', 'Home::jobs', ['POST', 'GET']);
+$router->get('/about-us', 'userController::about');
+$router->match('/contact', 'userController::contact', ['POST', 'GET']);
+
 
 $router->group('/user', function() use ($router) {
+    $router->match('/about-us', 'Home::aboutUs', ['POST', 'GET']);
+
+
     $router->match('/jobseeker/profile', 'userController::jobSeekerProfile', ['POST', 'GET']);
     $router->match('/jobseeker/profile/{id}', 'userController::viewJobSeekerProfile', ['POST', 'GET']);
     $router->match('/jobseeker/job/apply', 'applicationController::jobApply', ['POST', 'GET']);
