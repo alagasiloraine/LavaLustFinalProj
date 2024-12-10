@@ -22,16 +22,16 @@
   ?>
 
   <?php if (isset($_SESSION['success'])): ?>
-              <script>
-                  toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
-              </script>
-              <?php unset($_SESSION['success']); ?>
-          <?php elseif (isset($_SESSION['error'])): ?>
-              <script>
-                  toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
-              </script>
-              <?php unset($_SESSION['error']); ?>
-          <?php endif; ?>
+    <script>
+      toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php elseif (isset($_SESSION['error'])): ?>
+    <script>
+      toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
 
   <main class="main-content">
     <div class="job-seekers-header">
@@ -60,21 +60,15 @@
         <option value="open">Open to Offers</option>
         <option value="employed">Employed</option>
       </select>
-      <div class="mb-6 flex justify-between items-center">
-              <button 
-                  onclick="changePage('prev')" 
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-              >
-                  Previous
-              </button>
-              <span id="paginationInfo" class="text-gray-700 font-medium"></span>
-              <button 
-                  onclick="changePage('next')" 
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-              >
-                  Next
-              </button>
-          </div>
+      <div class="mb-6 flex justify-between items-center space-x-2 ">
+        <button onclick="changePage('prev')" class="bg-blue-800 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600 transition shadow-sm">
+          Previous
+        </button>
+        <span id="paginationInfo" class="text-gray-700 font-medium"></span>
+        <button onclick="changePage('next')" class="bg-blue-800 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600 transition shadow-sm">
+          Next
+        </button>
+      </div>
     </div>
 
     <div class="job-seekers-grid" id="jobSeekersGrid">
@@ -135,6 +129,17 @@
 
               <?php else: ?>
                   <span class="no-resume-available">No Resume Available</span>
+              <?php endif; ?>
+              <?php if (!empty($jobSeeker['resume'])): ?>
+                <a href="javascript:void(0)" 
+                  class="view-resume-btn" 
+                  onclick="downloadResume('<?= htmlspecialchars($jobSeeker['resume']) ?>')">View Resume
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </a>
+              <?php else: ?>
+                <span class="no-resume-available">No Resume Available</span>
               <?php endif; ?>
           </div>
 
@@ -231,6 +236,51 @@
                   }
               });
           }
+  
+    function downloadResume(resumeFile) {
+        // Construct the URL to the PHP function that serves the file
+        var downloadUrl = "<?= site_url('admin/download/') ?>" + resumeFile;
+
+        // Create a new XMLHttpRequest to fetch the file
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", downloadUrl, true);
+        xhr.responseType = 'blob';  // Expect a blob response (binary data)
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Create a Blob from the response
+                var blob = xhr.response;
+                var link = document.createElement('a');
+                
+                // Create an object URL from the Blob
+                var url = window.URL.createObjectURL(blob);
+                
+                // Set the download attribute to suggest the filename
+                link.href = url;
+                link.download = resumeFile;  // Use the resume filename as the downloaded file name
+                
+                // Append the link to the body (required for triggering the click event)
+                document.body.appendChild(link);
+                
+                // Trigger the download by simulating a click
+                link.click();
+                
+                // Clean up: remove the link and revoke the object URL
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert("Failed to download the file. Please try again.");
+            }
+        };
+
+        xhr.onerror = function() {
+            alert("Error while downloading the file. Please try again.");
+        };
+
+        // Send the request to the server
+        xhr.send();
+    }
+
   </script>
 </body>
 

@@ -288,10 +288,16 @@
             color: #fff;
         }
 
+        .sup {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .container {
-                width: 100%;
-                min-height: 480px;
+                width: 90%;
+                min-height: 590px;
+                display: flex;
+                flex-direction: column;
             }
 
             .toggle-container {
@@ -300,6 +306,27 @@
 
             .sign-in {
                 width: 100%;
+            }
+
+            .sign-up-btn {
+                display: block;
+                background-color: transparent;
+                color: #003479 !important; /* Updated line for white text */
+                font-size: 14px;
+                padding: 12px 45px;
+                border: 1px solid #003479;
+                border-radius: 8px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                margin-top: 20px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+            .sign-up-btn:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #fff;
             }
         }
     </style>
@@ -357,6 +384,7 @@
                 </div>
 
                 <button type="submit">Sign In</button>
+                <a href="<?=site_url('auth/register');?>" class="sign-up-btn sup">Sign Up</a>
             </form>
         </div>
         <div class="toggle-container">

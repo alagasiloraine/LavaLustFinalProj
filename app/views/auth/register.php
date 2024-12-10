@@ -178,6 +178,18 @@
             <h1>Create Account</h1>
             <p class="form-description">Join CareerConnect to explore exciting IT career opportunities</p>
 
+            <?php if (isset($_SESSION['success'])): ?>
+                <script>
+                    toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+                </script>
+                <?php unset($_SESSION['success']); ?>
+            <?php elseif (isset($_SESSION['error'])): ?>
+                <script>
+                    toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+                </script>
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+
             <?php flash_alert(); ?>
             <form id="regForm" method="POST" action="<?= site_url('auth/register'); ?>">
                 <?php csrf_field(); ?>

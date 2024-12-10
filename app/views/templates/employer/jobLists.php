@@ -1,280 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
-	<link rel="stylesheet" type="text/css"  href="https://cdn.datatables.net/buttons/1.4.0/css/buttons.dataTables.min.css" />
-
-</head>
-<body class="bg-gray-100 text-gray-800">
-
-    <div class="container mx-auto mt-8">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Job Listings</h1>
-
-        <?php
-            include APP_DIR.'views/templates/employer/postModal.php';
-        ?> 
-
-        <div class="mb-6 flex flex-col md:flex-row md:justify-between gap-4">
-            <div class="flex-grow">
-                <input
-                    type="text"
-                    id="searchInput"
-                    oninput="searchJobs()"
-                    placeholder="Search for jobs..."
-                    class="p-3 border border-gray-300 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-            </div>
-
-            <div class="flex-grow md:flex-grow-0">
-                <select
-                    id="filterSelect"
-                    onchange="filterJobs()"
-                    class="p-3 border border-gray-300 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
-                    <option value="all">All Job Types</option>
-                    <option value="full-time">Full-Time</option>
-                    <option value="part-time">Part-Time</option>
-                    <option value="remote">Remote</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-6 flex justify-between items-center">
-            <button 
-                onclick="changePage('prev')" 
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-            >
-                Previous
-            </button>
-            <span id="paginationInfo" class="text-gray-700 font-medium"></span>
-            <button 
-                onclick="changePage('next')" 
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-            >
-                Next
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php if (!empty($jobs)): ?>
-                <?php foreach ($jobs as $job): ?>
-                    <?php
-                        $shouldHide = false;
-                        foreach ($applications as $app) {
-                            if ($app['job_id'] == $job['job_id'] && in_array($app['status'], ['Applied', 'Hired', 'Rejected', 'Scheduled'])) {
-                                $shouldHide = true;
-                                break;
-                            }
-                        }
-                    ?>
-                    <?php if (!$shouldHide): ?>
-                        <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200 hover:shadow-xl transition job-card">
-                            <h2 class="text-xl font-bold mb-2 text-gray-800"><?= htmlspecialchars($job['title']); ?></h2>
-                            <p class="text-gray-600 mb-4"><?= htmlspecialchars($job['description']); ?></p>
-                            <p class="mb-2"><strong>Requirements:</strong> <?= htmlspecialchars($job['requirements']); ?></p>
-                            <p class="mb-2"><strong>Location:</strong> <?= htmlspecialchars($job['location']); ?></p>
-                            <p class="mb-2 job-type"><strong>Type:</strong> <?= htmlspecialchars($job['job_type']); ?></p>
-                            <p class="mb-2"><strong>Salary:</strong> <?= htmlspecialchars($job['salary']); ?></p>
-                            <p class="mb-2"><strong>Category:</strong> <?= htmlspecialchars($job['category'] ?? 'Undefined'); ?></p>
-                            <p class="mb-4 text-sm text-gray-500">
-                                Posted at: <span data-posted-at="<?= htmlspecialchars($job['posted_at']); ?>"></span>
-                            </p>
-                            <h3 class="text-lg font-bold mb-2">Employer Details</h3>
-                            <p class="mb-2"><strong>Company:</strong> <?= htmlspecialchars($job['company_name']); ?></p>
-                            <p class="mb-2"><strong>Contact:</strong> <?= htmlspecialchars($job['contact_info']); ?></p>
-                            <p class="mb-4"><strong>Status:</strong> <?= htmlspecialchars($job['status']); ?></p>
-
-                            <?php if ($role === 'jobseeker'): ?>
-                                <?php if ($job['status'] === 'inactive'): ?>
-                                    <span class="text-red-500 font-semibold">Inactive</span>
-                                <?php else: ?>
-                                    <button 
-                                        class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                                        onclick="openModal(<?= $job['job_id']; ?>)"
-                                    >
-                                        Apply to this Job
-                                    </button>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            <button 
-                                class="save-job-button" 
-                                data-job-id="<?= htmlspecialchars($job['job_id']); ?>" 
-                                onclick="saveJob(this)"
-                            >
-                                <i class="bx bx-heart"></i>
-                            </button>
-                        </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-gray-600 text-center col-span-full">No jobs found.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-
-
-    <div id="applyModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-1/3">
-            <div class="flex justify-between items-center px-6 py-4 border-b">
-                <h3 class="text-xl font-semibold">Apply for Job</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800">&times;</button>
-            </div>
-            <form action="<?= site_url('user/jobseeker/job/apply') ?>" method="POST" enctype="multipart/form-data" class="p-6">
-                <input type="hidden" id="jobIdField" name="job_id" value="<?= htmlspecialchars($job['job_id']); ?>">
-                <div class="mb-4">
-                    <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-                    <input type="text" id="first_name" name="first_name" required class="mt-1 p-2 border border-gray-300 rounded w-full">
-                </div>
-                <div class="mb-4">
-                    <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                    <input type="text" id="last_name" name="last_name" required class="mt-1 p-2 border border-gray-300 rounded w-full">
-                </div>
-                <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" name="email" required class="mt-1 p-2 border border-gray-300 rounded w-full">
-                </div>
-                <div class="mb-4">
-                    <label for="resume" class="block text-sm font-medium text-gray-700">Resume (Optional)</label>
-                    <input type="file" id="resume" name="resume" class="mt-1 p-2 border border-gray-300 rounded w-full">
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" onclick="closeModal()" class="mr-4 bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function timeAgo(timestamp) {
-            const now = new Date();
-            const postedDate = new Date(timestamp);
-            const seconds = Math.floor((now - postedDate) / 1000);
-
-            if (seconds < 60) return "now";
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-            const days = Math.floor(hours / 24);
-            return `${days} day${days > 1 ? "s" : ""} ago`;
-        }
-
-        function updateTimes() {
-            document.querySelectorAll("[data-posted-at]").forEach((element) => {
-                const timestamp = element.dataset.postedAt;
-                element.textContent = timeAgo(timestamp);
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", updateTimes);
-
-        function openModal(jobId) {
-            console.log('opening the modal with id:' + jobId);
-            const modal = document.getElementById('applyModal'); // Corrected the ID reference
-            const jobIdField = document.getElementById('jobIdField'); // Corrected the ID reference
-            modal.classList.remove('hidden');
-            jobIdField.value = jobId; 
-        }
-
-
-        function closeModal() {
-            const modal = document.getElementById('applyModal');
-            modal.classList.add('hidden');
-        }
-
-        function searchJobs() {
-            const searchInput = document.getElementById("searchInput").value.toLowerCase();
-            const jobCards = document.querySelectorAll(".job-card"); 
-            jobCards.forEach((card) => {
-                const title = card.querySelector("h2").textContent.toLowerCase(); 
-                const description = card.querySelector("p").textContent.toLowerCase(); 
-                card.style.display =
-                    title.includes(searchInput) || description.includes(searchInput) ? "block" : "none";
-            });
-        }
-
-        function filterJobs() {
-            const filterValue = document.getElementById("filterSelect").value.toLowerCase();
-            const jobCards = document.querySelectorAll(".job-card"); 
-            jobCards.forEach((card) => {
-                const type = card.querySelector(".job-type").textContent.toLowerCase();
-                card.style.display =
-                    filterValue === "all" || type.includes(filterValue) ? "block" : "none";
-            });
-        }
-
-        let currentPage = 1;
-        const jobsPerPage = 6;
-
-        function paginateJobs() {
-            const jobCards = Array.from(document.querySelectorAll(".job-card"));
-            const totalJobs = jobCards.length;
-            const totalPages = Math.ceil(totalJobs / jobsPerPage);
-
-            jobCards.forEach((card, index) => {
-                card.style.display =
-                    index >= (currentPage - 1) * jobsPerPage && index < currentPage * jobsPerPage
-                        ? "block"
-                        : "none";
-            });
-
-            document.getElementById("paginationInfo").textContent = `Page ${currentPage} of ${totalPages}`;
-        }
-
-        function changePage(direction) {
-            const jobCards = Array.from(document.querySelectorAll(".job-card"));
-            const totalJobs = jobCards.length;
-            const totalPages = Math.ceil(totalJobs / jobsPerPage);
-
-            if (direction === "next" && currentPage < totalPages) currentPage++;
-            if (direction === "prev" && currentPage > 1) currentPage--;
-
-            paginateJobs();
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            paginateJobs();
-        });
-
-        function saveJob(button) {
-            const jobId = button.dataset.jobId;
-            const icon = button.querySelector("svg");
-
-            fetch('<?= site_url("user/jobseeker/save-job") ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({ job_id: jobId }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Toggle the heart icon class
-                        if (icon.classList.contains('bx-heart')) {
-                            icon.classList.remove('bx-heart', 'text-gray-500');
-                            icon.classList.add('bxs-heart', 'text-red-500');
-                        } else {
-                            icon.classList.remove('bxs-heart', 'text-red-500');
-                            icon.classList.add('bx-heart', 'text-gray-500');
-                        }
-                    } else {
-                        alert(data.message || "Failed to save the job.");
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-
-    </script>
-</body>
-</html> -->
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -283,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Your Dream Job Here</title>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
 
@@ -1278,6 +1003,18 @@
             gap: 8px;
         }
 
+        .btn2 {
+            appearance: none;
+            background: #2B5592;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
         .current-page {
             background: #2B5592;
             color: white;
@@ -1436,6 +1173,112 @@
                 width: 100%;
             }
         }
+
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Modal Content */
+        .custom-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Grid Layout for the Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 20px;
+            grid-template-areas:
+                "title title"
+                "description description"
+                "requirements requirements"
+                "location salary"
+                "jobType category"
+                "status status";
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 10px;
+            font-size: 14px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            grid-column: span 2; /* Span across both columns */
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Make the grid responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr; /* Single column on smaller screens */
+            }
+
+            .btn-primary {
+                grid-column: span 1;
+            }
+        }
+
+        .sbtn {
+            background-color: #2B5592;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+        .post {
+            color: #2B5592;
+           font-size: 2rem;
+           margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 
@@ -1447,6 +1290,8 @@
             });
         </script>
     <?php unset($_SESSION['toastr']); endif; ?>   
+
+   
     <div class="container">
         <div class="hero-section">
             <div class="hero-title-wrapper">
@@ -1460,19 +1305,105 @@
             </div>
         </div>
 
+        <!-- Recommended Header -->
         <div class="recommended-header">
             <h1>Recommended Jobs</h1>
-            <select class="view-all-btn" id="filterSelect" onchange="filterJobs()">
-                <option value="all">All Job Types</option>
-                <option value="full-time">Full-Time</option>
-                <option value="part-time">Part-Time</option>
-                <option value="remote">Remote</option>
-                <!-- <option>Contract</option>
-                <option>Internship</option> -->
-            </select>
+            <div>
+                <?php if ($user_role === 'employer') : ?>
+                    <button type="button" class="btn2" id="showJobPostModal">Post a Job</button>
+
+                    <!-- Modal -->
+                    <!-- Modal Structure -->
+                    <div id="jobPostModal" class="custom-modal">
+                        <div class="custom-modal-content">
+                            <span class="close-btn" id="closeModal">&times;</span>
+                            <h2 class="post">Post a Job</h2>
+                            <form id="jobPostForm" method="POST" action="<?= site_url('user/employer/job-post'); ?>" class="form-grid">
+                                <!-- Job Title -->
+                                <div class="form-group">
+                                    <label for="jobTitle">Job Title</label>
+                                    <input type="text" id="jobTitle" name="title" required>
+                                </div>
+
+                                <!-- Job Description -->
+                                <div class="form-group">
+                                    <label for="jobDescription">Job Description</label>
+                                    <textarea id="jobDescription" name="description" rows="3" required></textarea>
+                                </div>
+
+                                <!-- Job Requirements -->
+                                <div class="form-group">
+                                    <label for="jobRequirements">Requirements</label>
+                                    <textarea id="jobRequirements" name="requirements" rows="3" required></textarea>
+                                </div>
+
+                                <!-- Job Location -->
+                                <div class="form-group">
+                                    <label for="jobLocation">Location</label>
+                                    <input type="text" id="jobLocation" name="location" required>
+                                </div>
+
+                                <!-- Job Salary -->
+                                <div class="form-group">
+                                    <label for="jobSalary">Salary</label>
+                                    <input type="text" id="jobSalary" name="salary" required>
+                                </div>
+
+                                <!-- Job Type -->
+                                <div class="form-group">
+                                    <label for="jobType">Job Type</label>
+                                    <select id="jobType" name="job_type" required>
+                                        <option value="full-time">Full-time</option>
+                                        <option value="part-time">Part-time</option>
+                                        <option value="remote">Remote</option>
+                                    </select>
+                                </div>
+
+                                <!-- Job Category -->
+                                <div class="form-group">
+                                    <label for="category">Category</label>
+                                    <select id="category" name="category" required>
+                                        <option value="Software Development">Software Development</option>
+                                        <option value="Web Development & Design">Web Development & Design</option>
+                                        <option value="Data & Analytics">Data & Analytics</option>
+                                        <option value="AI & Machine Learning">AI & Machine Learning</option>
+                                        <option value="Cloud Computing & DevOps">Cloud Computing & DevOps</option>
+                                        <option value="Cybersecurity">Cybersecurity</option>
+                                        <option value="Networking & Infrastructure">Networking & Infrastructure</option>
+                                        <option value="IT Management">IT Management</option>
+                                        <option value="Software Testing">Software Testing</option>
+                                        <option value="Database Management">Database Management</option>
+                                        <option value="Emerging Technologies">Emerging Technologies</option>
+                                        <option value="IT Sales & Consulting">IT Sales & Consulting</option>
+                                        <option value="Specialized IT Fields">Specialized IT Fields</option>
+                                    </select>
+                                </div>
+
+                                <!-- Job Status -->
+                                <div class="form-group">
+                                    <label for="jobStatus">Status</label>
+                                    <select id="jobStatus" name="status" required>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="sbtn">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <select id="filterSelect" onchange="filterJobs()">
+                    <option value="all">All Job Types</option>
+                    <option value="full-time">Full-Time</option>
+                    <option value="part-time">Part-Time</option>
+                    <option value="remote">Remote</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Add pagination after the job grid -->
         <div class="pagination">
             <button id="prevPage" class="pagination-btn" disabled>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1505,9 +1436,7 @@
                     <?php if (!$shouldHide): ?>
                         <div class="job-card" data-job-id="<?= $job['job_id']; ?>">
                             <div class="job-header">
-                                <img src="<?= htmlspecialchars($job['company_logo'] ?? '/path/to/default-logo.jpg'); ?>"
-                                    alt="<?= htmlspecialchars($job['company_name']); ?>"
-                                    class="company-logo">
+                                <img src="<?= isset($job['profile_picture']) && !empty($job['profile_picture']) ? '../../../../uploads/profile_pictures/' . $job['profile_picture'] : '../../../public/images/default_profile.jpg'; ?>" alt="" class="company-logo">
                                 <div>
                                     <h2 class="job-title"><?= htmlspecialchars($job['title']); ?></h2>
                                     <p class="company-name"><?= htmlspecialchars($job['company_name']); ?></p>
@@ -1602,6 +1531,7 @@
                             <p><strong>Posted:</strong> <span id="modalPostedDate"></span></p>
                         </div>
 
+
                         <div class="modal-actions">
                             <a id="modalApplyButton" href="#" class="btn btn-primary">Apply to this job</a>
                         </div>
@@ -1609,6 +1539,7 @@
                         <button class="btn btn-secondary" data-job-id="<?= htmlspecialchars($job['job_id']); ?>" onclick="saveJob(this)" style="width: 100%;">
                             Save
                         </button>
+
                     </div>
 
                     <div class="modal-section">
@@ -1684,6 +1615,23 @@
     </div>
 
     <script>
+        document.getElementById('showJobPostModal').addEventListener('click', function () {
+            document.getElementById('jobPostModal').style.display = 'flex';
+        });
+
+        // Hide the modal
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('jobPostModal').style.display = 'none';
+        });
+
+        // Close the modal when clicking outside the modal content
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('jobPostModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
         var modal = document.getElementById("jobModal");
         var span = document.getElementsByClassName("close")[0];
 
@@ -1697,10 +1645,15 @@
             }
         }
 
+        var userRole = <?= json_encode($user_role); ?>;
+
         function openJobModal(job) {
             document.getElementById("modalJobTitle").textContent = job.title;
             document.getElementById("modalCompanyName").textContent = job.company_name;
-            document.getElementById("modalCompanyLogo").src = job.company_logo || '../../../../../public/images/default_profile.jpg';
+            document.getElementById("modalCompanyLogo").src =
+                job.profile_picture
+                    ? '../../../../uploads/profile_pictures/' + job.profile_picture
+                    : '../../../../../public/images/default_profile.jpg';
             document.getElementById("modalCompanyContact").textContent = job.contact_info;
             document.getElementById("modalPostedDate").textContent = job.posted_at;
             document.getElementById("modalLocation").querySelector("span").textContent = job.location;
@@ -1708,15 +1661,22 @@
             document.getElementById("modalDescription").textContent = job.description;
             document.getElementById("modalRequirements").textContent = job.requirements;
 
-            // document.getElementById("modalApplyButton").href = `/job/apply/${job.job_id}`;
-            // Update the Apply button to open the new modal
-            document.getElementById("modalApplyButton").onclick = function(e) {
+            if (userRole === "employer") {
+                document.getElementById("modalApplyButton").style.display = "none";
+                document.querySelector(".btn.btn-secondary").style.display = "none";
+            } else {
+                document.getElementById("modalApplyButton").style.display = "inline-block";
+                document.querySelector(".btn.btn-secondary").style.display = "block";
+            }
+
+            document.getElementById("modalApplyButton").onclick = function (e) {
                 e.preventDefault();
                 openApplyModal(job.job_id);
             };
 
             modal.style.display = "block";
         }
+
 
         function copyJobLink() {
             navigator.clipboard.writeText(window.location.href);
@@ -1770,7 +1730,7 @@
 
             jobCard.innerHTML = `
                 <div class="job-header">
-                    <img src="${job.company_logo || '/path/to/default-logo.jpg'}" alt="${job.company_name}" class="company-logo">
+                    <img src="<?= isset($job['profile_picture']) && !empty($job['profile_picture']) ? '../../../../uploads/profile_pictures/' . $job['profile_picture'] : '../../../public/images/default_profile.jpg'; ?>" class="company-logo">
                     <div>
                         <h2 class="job-title">${job.title}</h2>
                         <p class="company-name">${job.company_name}</p>

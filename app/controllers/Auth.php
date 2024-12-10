@@ -80,10 +80,12 @@ class Auth extends Controller {
                         // Store the email in session for verification
                         $_SESSION['verification_email'] = $email; 
     
-                        set_flash_alert('success', 'Registration successful! Please check your email for the verification code.');
+                        $_SESSION['success'] = 'Registration successful! Please check your email for the verification code.';
+                        // set_flash_alert('success', 'Registration successful! Please check your email for the verification code.');
                         redirect('auth/verify_code'); // Redirect to the page where user can enter the code
                     } else {
-                        set_flash_alert('danger', 'Failed to send verification email. Please try again.');
+                        $_SESSION['error'] = 'Failed to send verification email. Please try again.';
+                        // set_flash_alert('danger', 'Failed to send verification email. Please try again.');
                         redirect('auth/register');
                     }
                 } else {

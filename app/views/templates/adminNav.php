@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
@@ -78,7 +80,7 @@
 
     <div class="nav-menu mt-auto">
       <div class="nav-item">
-        <a href="<?=site_url('auth/logout');?>" class="nav-link">
+        <a href="#" class="nav-link" onclick="confirmLogout(event)">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>
@@ -87,5 +89,26 @@
       </div>
     </div>
   </aside>
+
+  <script>
+    function confirmLogout(event) {
+        event.preventDefault(); // Prevent the default anchor behavior
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out of your session.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, log me out!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to logout
+                window.location.href = "<?= site_url('auth/logout'); ?>";
+            }
+        });
+    }
+</script>
 </body>
 </html>

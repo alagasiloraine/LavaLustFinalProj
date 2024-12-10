@@ -141,7 +141,7 @@ class Home extends Controller {
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') 
-                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info')
+                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
                          ->get_all();
     
         if ($jobs === false) {
@@ -155,6 +155,7 @@ class Home extends Controller {
         } else {
             $this->call->view('homepage', [
                 'user' => $user_details,
+                'user_role' => $user_details['role'],
                 'jobs' => $jobs,
                 'application' => $application,
                 'applications' => $applications,

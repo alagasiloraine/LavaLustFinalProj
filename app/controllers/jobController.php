@@ -47,7 +47,7 @@ class JobController extends Controller {
             $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to post job. Please try again.'];
         }
     
-        redirect('home');
+        redirect('/jobs');
     }
     
     public function getJob() {
@@ -65,7 +65,7 @@ class JobController extends Controller {
         $jobs = $this->db->table('jobs as j')
                          ->join('employers as e', 'j.employer_id = e.employer_id')
                          ->join('users as u', 'u.id = e.user_id') 
-                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info')
+                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
                          ->get_all();
 
         $applications = $this->db->table('job_applications')

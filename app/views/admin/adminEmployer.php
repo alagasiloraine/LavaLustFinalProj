@@ -13,38 +13,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-rXxIFbCxF4CyCPgYwMdNsVov2GAzGpGQKgEfiGyjH71Szs5bNJPaTvY1f3JibXoElH3s5IjroFZ8x3TBuEFyKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body>
-  <!-- Sidebar - Kept exactly as in adminDashboard.php -->
   <?php
     include APP_DIR.'views/templates/adminNav.php';
   ?>
 
-  <?php if (isset($_SESSION['success'])): ?>
-              <script>
-                  toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
-              </script>
-              <?php unset($_SESSION['success']); ?>
-          <?php elseif (isset($_SESSION['error'])): ?>
-              <script>
-                  toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
-              </script>
-              <?php unset($_SESSION['error']); ?>
-          <?php endif; ?>
+    <?php if (isset($_SESSION['success'])): ?>
+        <script>
+            toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+        </script>
+        <?php unset($_SESSION['success']); ?>
+    <?php elseif (isset($_SESSION['error'])): ?>
+        <script>
+            toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+        </script>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
   <main class="main-content">
     <div class="job-seekers-header">
       <div class="header-top">
         <div>
           <h1 class="job-seekers-title">Employers</h1>
-          <!-- <p class="job-seekers-subtitle">Manage and view job seeker profiles</p> -->
         </div>
       </div>
     </div>
 
-    <div class="search-filters-container">
-      <div class="search-container">
+    <div class="search-filters-container ">
+      <div class="search-container items-center">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -52,30 +52,17 @@
         <input type="text"  id="searchInput"
               oninput="searchJobSeeker()" class="search-input" placeholder="Search employers...">
       </div>
-      <!-- <select class="filter-select"
-            id="filterSelect"
-            onchange="filterJobSeeker()">
-        <option value="all">All Status</option>
-        <option value="available">Available</option>
-        <option value="open">Open to Offers</option>
-        <option value="employed">Employed</option>
-      </select> -->
-      <div class="mb-6 flex justify-between items-center">
-              <button 
-                  onclick="changePage('prev')" 
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-              >
-                  Previous
-              </button>
-              <span id="paginationInfo" class="text-gray-700 font-medium"></span>
-              <button 
-                  onclick="changePage('next')" 
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm"
-              >
-                  Next
-              </button>
-          </div>
+  
+      <div class="mb-6 flex justify-between items-center space-x-2 ">
+        <button onclick="changePage('prev')" class="bg-blue-800 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600 transition shadow-sm">
+            Previous
+        </button>
+        <span id="paginationInfo" class="text-gray-700 font-medium"></span>
+        <button  onclick="changePage('next')" class="bg-blue-800 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600 transition shadow-sm">
+            Next
+        </button>
     </div>
+</div>
 
     <div class="job-seekers-grid" id="jobSeekersGrid">
         <?php foreach ($employers as $employer): ?>
@@ -98,43 +85,52 @@
                     </div>
                 </div>
                 <div class="expertise-section">
-                    <div class="posted-jobs">
-                        <h4>Posted Jobs:</h4>
+                    <div class="posted-jobs p-2">
+                        <h5 class="text-xl font-bold mb-4">Posted Jobs:</h5>
                         <?php if (!empty($employer['posted_jobs'])): ?>
-                            <ul>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 h-56 overflow-auto p-2">
                                 <?php foreach ($employer['posted_jobs'] as $job): ?>
-                                    <li>
-                                        <strong><?= htmlspecialchars($job['title']) ?></strong> - <?= htmlspecialchars($job['description']) ?>
-                                        <button type="button" class="job-action-btn" onclick="toggleModal('showModal-<?= $job['job_id'] ?>')">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M12 4C7.03 4 3.17 7.36 2.21 10.59a1 1 0 000 .82C3.17 16.64 7.03 20 12 20c4.97 0 8.83-3.36 9.79-6.59a1 1 0 000-.82C20.83 7.36 16.97 4 12 4zm0 12c-2.94 0-5.5-2.07-6.36-4.95C6.5 10.07 9.06 8 12 8c2.94 0 5.5 2.07 6.36 4.95C17.5 15.93 14.94 17 12 17z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
+                                    <div class="bg-white rounded-lg shadow-lg border p-2 transition-transform transform hover:scale-105">
+                                        <h3 class="text-md font-semibold text-blue-800"><?= htmlspecialchars($job['title']) ?></h3>
+                                        <p class="text-gray-600 mb-4 text-sm"><?= htmlspecialchars($job['description']) ?></p>
+                                        <button type="button" class="job-action-btn text-blue-600 hover:text-blue-800" onclick="toggleModal('showModal-<?= $job['job_id'] ?>')">
+                                            <span>view</span>
                                         </button>
-                                    </li>
+                                    </div>
 
                                     <!-- Job Detail Modal -->
-                                    <div id="showModal-<?= $job['job_id'] ?>" class="modal">
-                                        <div class="modal-content">
-                                            <span class="close-btn" onclick="toggleModal('showModal-<?= $job['job_id'] ?>')">&times;</span>
-                                            <h4><?= htmlspecialchars($job['title']) ?></h4>
-                                            <p><strong>Description:</strong> <?= htmlspecialchars($job['description']) ?></p>
-                                            <p><strong>Requirements:</strong> <?= htmlspecialchars($job['requirements']) ?></p>
-                                            <p><strong>Location:</strong> <?= htmlspecialchars($job['location']) ?></p>
-                                            <p><strong>Job Type:</strong> <?= htmlspecialchars($job['job_type']) ?></p>
-                                            <p><strong>Salary:</strong> <?= htmlspecialchars($job['salary']) ?></p>
+                                    <div id="showModal-<?= $job['job_id'] ?>" class="modal fixed inset-0 z-50 flex top-1 justify-center items-center bg-black bg-opacity-70 hidden overflow-hidden">
+                                        <div class="modal-content bg-white rounded-lg shadow-lg p-8 w-full max-w-lg transition-transform transform scale-95 hover:scale-100">
+                                            <span class="close-btn text-gray-500 hover:text-gray-700 cursor-pointer text-2xl" onclick="toggleModal('showModal-<?= $job['job_id'] ?>')">&times;</span>
+                                            <h4 class="text-2xl font-bold text-bluue-800 mb-4"><?= htmlspecialchars($job['title']) ?></h4>
+                                            
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="bg-gray-100 p-4 rounded-lg shadow">
+                                                    <h5 class="font-semibold text-lg text-blue-600">Job Details</h5>
+                                                    <p class="text-gray-700"><strong>Description:</strong> <?= htmlspecialchars($job['description']) ?></p>
+                                                    <p class="text-gray-700"><strong>Requirements:</strong> <?= htmlspecialchars($job['requirements']) ?></p>
+                                                </div>
+                                                <div class="bg-gray-100 p-4 rounded-lg shadow">
+                                                    <h5 class="font-semibold text-lg text-blue-600">Job Information</h5>
+                                                    <p class="text-gray-700"><strong>Location:</strong> <?= htmlspecialchars($job['location']) ?></p>
+                                                    <p class="text-gray-700"><strong>Job Type:</strong> <?= htmlspecialchars($job['job_type']) ?></p>
+                                                    <p class="text-gray-700"><strong>Salary:</strong> <?= htmlspecialchars($job['salary']) ?></p>
+                                                </div>
+                                                <div class="bg-gray-100 p-4 rounded-lg shadow">
+                                                    <h5 class="font-semibold text-lg text-blue-600">Employer Information</h5>
+                                                    <p class="text-gray-700"><strong>Employer:</strong> <?= htmlspecialchars($employer['company_name']) ?></p>
+                                                    <p class="text-gray-700"><strong>Address:</strong> <?= htmlspecialchars($employer['company_address']) ?></p>
+                                                    <p class="text-gray-700"><strong>Contact:</strong> <?= htmlspecialchars($employer['contact_info']) ?></p>
+                                                </div>
+                                            </div>
 
-                                            <!-- <p><strong>Job ID:</strong> <?= htmlspecialchars($job['job_id']) ?></p> -->
-                                            <p><strong>Employer:</strong> <?= htmlspecialchars($employer['company_name']) ?></p>
-                                            <p><strong>Location:</strong> <?= htmlspecialchars($employer['company_address']) ?></p>
-                                            <p><strong>Contact:</strong> <?= htmlspecialchars($employer['contact_info']) ?></p>
                                         </div>
                                     </div>
 
                                 <?php endforeach; ?>
-                            </ul>
+                            </div>
                         <?php else: ?>
-                            <p>No Jobs Posted</p>
+                            <p class="text-gray-600">No Jobs Posted</p>
                         <?php endif; ?>
                     </div>
                 </div>

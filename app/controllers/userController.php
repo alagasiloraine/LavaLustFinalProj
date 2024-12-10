@@ -176,7 +176,6 @@ class userController extends Controller{
                 ->encrypt_name(); // Encrypt the filename
     
             if ($this->upload->do_upload()) {
-                // Delete old profile picture if it exists
                 $existing_profile = $this->db->table('job_seekers')->select('profile_picture')->where('user_id', $user_id)->get();
                 if (!empty($existing_profile['profile_picture']) && file_exists('uploads/profile_pictures/' . $existing_profile['profile_picture'])) {
                     unlink('uploads/profile_pictures/' . $existing_profile['profile_picture']);
@@ -247,5 +246,25 @@ class userController extends Controller{
         ]);
     }
 
+    public function downloadResume($resume) {
+        $path = "uploads/resumes/" . $resume;
+    
+        if (file_exists($path)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($path) . '"');
+            header('Content-Length: ' . filesize($path));
+            header('Pragma: public');
+            flush(); // Flush system output buffer
+            readfile($path);
+            exit; // Stop further script execution
+        } else {
+            // $_SESSION['error'] = 'Resume not found';
+            redirect('user/employer/viewApplications');
+        }
+    }
+    
+    
+    
 
 }

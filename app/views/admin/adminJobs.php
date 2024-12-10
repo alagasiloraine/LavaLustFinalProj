@@ -13,6 +13,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
+
+    <style>
+       .job-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            transition: all var(--animation-duration) ease;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-active::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 8px;
+            background: var(--gradient-success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-inactive::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 8px;
+            background: var(--gradient-danger);
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+
+        /* .status-active::before,
+.status-inactive::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+} */
+
+        .status-active::before {
+            background-color: #15803d;
+            box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.2);
+        }
+
+        .status-inactive::before {
+            background-color: #dc2626;
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+        }
+
+        /* Ensure text is centered with dot */
+        .job-status span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
   </head>
 
   <body>
@@ -132,13 +218,13 @@
                   <p><?= htmlspecialchars($job['description']); ?></p>
                 </div>
                 <div class="job-status">
-                  <svg class="job-detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                  </svg>
-                  <?= htmlspecialchars($job['status']); ?>
+                  <span class="job-status <?= $job['status'] === 'active' ? 'status-active' : 'status-inactive' ?>">
+                    <?= htmlspecialchars($job['status']); ?>
+                  </span>
                 </div>
                 
                 <?php if ($job['status'] === 'inactive' ): ?>
+                  
                   <div class="job-detail">
                     Last active: 
                     <span data-inactive-at="<?= htmlspecialchars($job['inactive_timestamp'] ?? ''); ?>"></span>

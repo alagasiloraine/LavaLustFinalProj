@@ -58,6 +58,7 @@ $router->group('/auth', function() use ($router){
 $router->match('/jobs', 'Home::jobs', ['POST', 'GET']);
 $router->get('/about-us', 'userController::about');
 $router->match('/contact', 'userController::contact', ['POST', 'GET']);
+$router->match('/download_resume/{resume}', 'userController::downloadResume', ['POST','GET']);
 
 
 $router->group('/user', function() use ($router) {
@@ -82,6 +83,7 @@ $router->group('/user', function() use ($router) {
     $router->match('/employer/viewApplications', 'applicationController::viewApplications', ['POST', 'GET']);
     $router->match('/employer/updateApplicationStatus/{id}', 'applicationController::updateApplicationStatus', ['POST', 'GET']);
     $router->match('/employer/scheduleInterview/{id}', 'applicationController::scheduleInterview', ['POST', 'GET']);
+    $router->match('/employer/download_resume/{resume}', 'userController::downloadResume', ['POST','GET']);
 
     $router->match('/profile/edit-profile', 'userController::editProfile', ['POST', 'GET']);
     $router->match('/profile/editEmployerProfile', 'userController::editEmployerProfile', ['POST', 'GET']);

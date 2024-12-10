@@ -476,8 +476,8 @@ class adminController extends Controller{
             readfile($path);
             redirect('admin/jobseekers');
         } else {
-            echo 'Resume file not found';
-            exit;
+            $_SESSION['error'] = 'Resume not found';
+            redirect('admin/jobseekers');
         }
     
   }
