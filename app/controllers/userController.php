@@ -80,7 +80,7 @@ class userController extends Controller{
             'location' => $this->io->post('location'),
             'bio' => $this->io->post('bio'),
             'skills' => $this->io->post('skills'),
-            'phone' => $this->io->post('phone'),
+            // 'phone' => $this->io->post('phone'),
             'education' => $this->io->post('education'),
             'experience' => $this->io->post('experience'),
             'availability' => $this->io->post('availability'),
@@ -136,6 +136,7 @@ class userController extends Controller{
 
             if($result) {
                 $_SESSION['success'] = 'Profile updated successfully!';  
+                redirect('user/jobseeker/profile');
             } else {
                 $_SESSION['error'] = 'Failed to update the profile. Please try again.';
             }

@@ -7,6 +7,9 @@ include APP_DIR . 'views/templates/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saved Jobs - Career Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -62,6 +65,7 @@ include APP_DIR . 'views/templates/header.php';
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid #e2e8f0;
             position: relative;
+            display: block;
         }
 
         .job-card:hover {
@@ -144,6 +148,34 @@ include APP_DIR . 'views/templates/header.php';
             font-size: 24px;
             color: #e53e3e;
             transition: transform 0.2s ease;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8fafc;
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-secondary:hover::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(37, 99, 235, 0.05), transparent);
+            animation: shimmer 1.5s infinite;
         }
 
         .save-job-button:hover {
@@ -265,25 +297,23 @@ include APP_DIR . 'views/templates/header.php';
             <p class="page-subtitle">Track and manage your favorite job opportunities</p>
         </div>
 
-        <?php if (isset($savedJobs) && !empty($savedJobs)): ?>
+        <?php if (!empty($savedJobs)): ?>
             <div class="jobs-grid">
                 <?php foreach ($savedJobs as $job): ?>
                     <?php
-                        $shouldHide = false;
+                        $shouldHide = true;
                         foreach ($applications as $app) {
-                            if (is_array($app) && isset($app['job_id'])) {
-                                if ($app['job_id'] == $job['job_id'] && in_array($app['status'], ['Applied', 'Hired', 'Rejected', 'Scheduled'])) {
-                                    $shouldHide = true;
-                                    break;
-                                }
+                            if (isset($app['job_id']) && $app['job_id'] == $job['job_id'] && in_array($app['status'], ['Applied', 'Hired', 'Rejected', 'Scheduled'])) {
+                                $shouldHide = true;
+                                break;
                             }
                         }
                     ?>
-                    <?php if (!$shouldHide): ?>
+                    <?php if ($shouldHide): ?>
                         <div class="job-card">
                             <h2 class="job-title"><?= htmlspecialchars($job['title']); ?></h2>
                             <p class="job-company"><?= htmlspecialchars($job['company_name']); ?></p>
-                            
+
                             <div class="job-details">
                                 <div class="job-detail-item">
                                     <span class="detail-label">Location:</span>
@@ -304,28 +334,37 @@ include APP_DIR . 'views/templates/header.php';
                             </div>
 
                             <div class="job-actions">
-                                <?php if ($role === 'jobseeker'): ?>
+                                <?php if (isset($role) && $role === 'jobseeker'): ?>
                                     <?php if ($job['status'] === 'inactive'): ?>
                                         <button class="btn btn-apply" disabled>Position Inactive</button>
+                                        <button 
+                                            class="btn btn-secondary" 
+                                            data-job-id="<?= htmlspecialchars($job['job_id']); ?>" 
+                                            onclick="saveJob(this)"
+                                        >
+                                            Unsave
+                                        </button>
                                     <?php else: ?>
                                         <button class="btn btn-apply" onclick="openModal(<?= $job['job_id']; ?>)">
                                             Apply Now
+                                        </button>
+                                        <button 
+                                            class="btn btn-secondary" 
+                                            data-job-id="<?= htmlspecialchars($job['job_id']); ?>" 
+                                            onclick="saveJob(this)"
+                                        >
+                                            Unsave
                                         </button>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
 
-                            <button 
-                                class="save-job-button" 
-                                data-job-id="<?= htmlspecialchars($job['job_id']); ?>" 
-                                onclick="saveJob(this)"
-                            >
-                                <i class="bx bx-heart"></i>
-                            </button>
+                           
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
+               
         <?php else: ?>
             <div class="empty-state">
                 <div class="empty-state-icon">📌</div>
@@ -333,6 +372,8 @@ include APP_DIR . 'views/templates/header.php';
                 <p class="empty-state-subtext">Start saving jobs you're interested in to view them here</p>
             </div>
         <?php endif; ?>
+
+
     </div>
 
     <div id="applyModal" class="modal">
@@ -342,7 +383,7 @@ include APP_DIR . 'views/templates/header.php';
                 <button onclick="closeModal()" class="close-button">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="<?= site_url('user/jobseeker/job/apply') ?>" method="POST" enctype="multipart/form-data">
+                <form id="applyForm" action="<?= site_url('user/jobseeker/job/apply-to-this-job') ?>" method="POST" enctype="multipart/form-data">
                     <input type="hidden" id="jobIdField" name="job_id">
                     <div class="form-group">
                         <label class="form-label" for="first_name">First Name</label>
@@ -369,6 +410,7 @@ include APP_DIR . 'views/templates/header.php';
         </div>
     </div>
 
+
     <script>
         function openModal(jobId) {
             console.log('opening the modal with id:' + jobId);
@@ -383,9 +425,31 @@ include APP_DIR . 'views/templates/header.php';
             modal.style.display = 'none';
         }
 
+        function openJobModal(job) {
+            const modal = document.getElementById("applyModal");
+
+            // Fill the modal with job data
+            document.getElementById("jobIdField").value = job.job_id;
+
+            // Handle the form submission
+            document.getElementById("applyForm").onsubmit = function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                // Check if the job is saved
+                const jobId = job.job_id;
+                const saveButton = document.querySelector(".btn.btn-secondary"); // Your Save/Unsave button
+
+                // Call the saveJob function before submitting the form
+                saveJob(saveButton, jobId).then(() => {
+                    // Now submit the form if the job was saved successfully
+                    this.submit(); // Submit the application form
+                });
+            };
+
+            modal.classList.add("active");
+        }
         function saveJob(button) {
             const jobId = button.dataset.jobId;
-            const icon = button.querySelector("i");
 
             fetch('<?= site_url("user/jobseeker/save-job") ?>', {
                 method: 'POST',
@@ -397,20 +461,21 @@ include APP_DIR . 'views/templates/header.php';
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    if (icon.classList.contains('bx-heart')) {
-                        icon.classList.remove('bx-heart');
-                        icon.classList.add('bxs-heart');
-                    } else {
-                        icon.classList.remove('bxs-heart');
-                        icon.classList.add('bx-heart');
-                    }
-                    window.location.href = '<?= site_url("user/jobseeker/saved-jobs") ?>';
+                    button.textContent = data.saved ? 'Unsave' : 'Save'; // Update button text dynamically
+                    toastr.success(data.message); // Show success notification
+                    
+                    // Reload the page after successful operation
+                    window.location.reload(); // This will refresh the page
                 } else {
-                    alert(data.message || "Failed to save the job.");
+                    toastr.error(data.message || "Failed to save the job."); // Show error notification
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred. Please try again.'); // Show error notification
+            });
         }
+
     </script>
 </body>
 </html>

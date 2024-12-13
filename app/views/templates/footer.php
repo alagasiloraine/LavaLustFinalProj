@@ -16,8 +16,8 @@
                 <h3>Navigation</h3>
                 <ul>
                     <li><a href="<?= site_url('home'); ?>"><span>Home</span></a></li>
-                    <li><a href="<?= site_url('user/jobs') ?>" ><span>Find Job</span></a></li>
-                    <li><a href="/user/aboutUs"><span>About Us</span></a></li>
+                    <li><a href="<?= site_url('jobs') ?>" ><span>Find Job</span></a></li>
+                    <li><a href="<?= site_url('about-us') ?>"><span>About Us</span></a></li>
                 </ul>
             </div>
 
@@ -25,9 +25,9 @@
                 <h3>Quick Link</h3>
                 <ul>
                     <li><a href="<?= site_url('home'); ?>"><span>Home</span></a></li>
-                    <li><a href="<?= site_url('user/jobs') ?>" ><span>Find Job</span></a></li>
-                    <li><a href="/user/aboutUs"><span>About Us</span></a></li>
-                    <li><a href="/user/Contact"><span>Contact Us</span></a></li>
+                    <li><a href="<?= site_url('jobs') ?>" ><span>Find Job</span></a></li>
+                    <li><a href="<?= site_url('about-us') ?>"><span>About Us</span></a></li>
+                    <li><a href="<?= site_url('contact') ?>"><span>Contact Us</span></a></li>
                 </ul>
             </div>
 

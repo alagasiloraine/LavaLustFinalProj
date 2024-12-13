@@ -1061,7 +1061,11 @@
                 <h1 class="hero-title">Welcome to CareerConnect, the ultimate job portal for IT professionals. </h1>
                 <p class="hero-description">We specialize in connecting top tech talent with forward-thinking companies, creating opportunities for growth, innovation, and success.</p>
                 <div class="hero-buttons">
-                    <a href="<?= site_url('jobs') ?>" class="btn btn-primary">Find a Job</a>
+                    <?php if ($user['role'] === 'employer'): ?>
+                        <a href="<?= site_url('jobs') ?>" class="btn btn-primary">Post a Job</a>
+                    <?php else: ?>
+                        <a href="<?= site_url('jobs') ?>" class="btn btn-primary">Find a Job</a>
+                    <?php endif; ?>
                     <a href="<?= site_url('contact') ?>" class="btn btn-secondary">Contact Us</a>
                 </div>
             </div>

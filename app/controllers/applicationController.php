@@ -3,6 +3,66 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class applicationController extends Controller {
 
+    // public function jobApply()
+    // {
+    //     if (!isset($_SESSION['user_id'])) {
+    //         redirect('auth/login');  
+    //     }
+
+    //     $user_id = $_SESSION['user_id'];
+
+    //     $job_id = $this->io->post('job_id');
+
+
+    //     $seeker_id = $this->db->table('job_seekers')
+    //             ->select('seeker_id')
+    //             ->where('user_id', $user_id)
+    //             ->get();
+
+    //     $employer_id = $this->db->table('jobs')
+    //             ->select('employer_id')
+    //             ->where('job_id', $job_id)
+    //             ->get();    
+        
+    //     $data = [   
+    //         'job_id' => $this->io->post('job_id'),
+    //         'jobseeker_id' => $seeker_id['seeker_id'],
+    //         'employer_id' => $employer_id['employer_id'],
+    //         'first_name' => $this->io->post('first_name'),
+    //         'last_name' => $this->io->post('last_name'),
+    //         'email' => $this->io->post('email'),
+    //         'status' => 'Applied',
+    //         'applied_at' => date('Y-m-d H:i:s'),
+    //     ];
+
+    //     if (isset($_FILES['resume']) && $_FILES['resume']['error'] == 0) {
+    //         $this->call->library('upload', $_FILES["resume"]);
+    //         $this->upload
+    //             ->max_size(5 * 1024) // 5MB size limit
+    //             ->set_dir('uploads/resumes') // Directory to store the file
+    //             ->allowed_extensions(['pdf', 'doc', 'docx']) // Allowed file types
+    //             ->allowed_mimes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+    //             ->encrypt_name(); // Encrypt the filename
+    
+    //         if ($this->upload->do_upload()) {
+    //             $data['resume'] = $this->upload->get_filename();
+    //         } else {
+    //             $data['errors'] = $this->upload->get_errors();
+    //             $this->call->view('upload_form', $data);
+    //             return;
+    //         }
+    //     }
+
+    //     if ($this->db->table('job_applications')->insert($data)) {
+    //         $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Apply successfully!'];
+    //     } else {
+    //         $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to Apply!'];
+    //     }
+    
+    //     redirect('jobs');
+
+    // }
+
     public function jobApply()
     {
         if (!isset($_SESSION['user_id'])) {
@@ -10,24 +70,36 @@ class applicationController extends Controller {
         }
 
         $user_id = $_SESSION['user_id'];
-
         $job_id = $this->io->post('job_id');
 
+        // Fetch seeker_id
+        $seeker_result = $this->db->table('job_seekers')
+            ->select('seeker_id')
+            ->where('user_id', $user_id)
+            ->get();
+        $seeker_id = $seeker_result ? $seeker_result['seeker_id'] : null;
 
-        $seeker_id = $this->db->table('job_seekers')
-                ->select('seeker_id')
-                ->where('user_id', $user_id)
-                ->get();
+        // Fetch employer_id
+        $employer_result = $this->db->table('jobs')
+            ->select('employer_id')
+            ->where('job_id', $job_id)
+            ->get();
+        $employer_id = $employer_result ? $employer_result['employer_id'] : null;
 
-        $employer_id = $this->db->table('jobs')
-                ->select('employer_id')
-                ->where('job_id', $job_id)
-                ->get();    
-        
+        // Check if both IDs are valid
+        if (is_null($seeker_id) || is_null($employer_id)) {
+            $_SESSION['toastr'] = [
+                'type' => 'error',
+                'message' => 'Unable to retrieve job seeker or employer information. Please try again.'
+            ];
+            redirect('jobs');
+            return;
+        }
+
         $data = [   
-            'job_id' => $this->io->post('job_id'),
-            'jobseeker_id' => $seeker_id['seeker_id'],
-            'employer_id' => $employer_id['employer_id'],
+            'job_id' => $job_id,
+            'jobseeker_id' => $seeker_id,
+            'employer_id' => $employer_id,
             'first_name' => $this->io->post('first_name'),
             'last_name' => $this->io->post('last_name'),
             'email' => $this->io->post('email'),
@@ -35,6 +107,7 @@ class applicationController extends Controller {
             'applied_at' => date('Y-m-d H:i:s'),
         ];
 
+        // Handle file upload (resume)
         if (isset($_FILES['resume']) && $_FILES['resume']['error'] == 0) {
             $this->call->library('upload', $_FILES["resume"]);
             $this->upload
@@ -43,25 +116,108 @@ class applicationController extends Controller {
                 ->allowed_extensions(['pdf', 'doc', 'docx']) // Allowed file types
                 ->allowed_mimes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                 ->encrypt_name(); // Encrypt the filename
-    
+
             if ($this->upload->do_upload()) {
                 $data['resume'] = $this->upload->get_filename();
             } else {
-                $data['errors'] = $this->upload->get_errors();
-                $this->call->view('upload_form', $data);
+                $_SESSION['toastr'] = [
+                    'type' => 'error',
+                    'message' => 'Failed to upload resume. Please try again.'
+                ];
+                redirect('jobs');
                 return;
             }
         }
 
+        // Insert application data
         if ($this->db->table('job_applications')->insert($data)) {
             $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Apply successfully!'];
         } else {
             $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to Apply!'];
         }
-    
-        redirect('home');
 
-        
+        redirect('jobs');
+    }
+
+    public function jobApplied()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            redirect('auth/login');  
+        }
+
+        $user_id = $_SESSION['user_id'];
+        $job_id = $this->io->post('job_id');
+
+        // Fetch seeker_id
+        $seeker_result = $this->db->table('job_seekers')
+            ->select('seeker_id')
+            ->where('user_id', $user_id)
+            ->get();
+        $seeker_id = $seeker_result ? $seeker_result['seeker_id'] : null;
+
+        // Fetch employer_id
+        $employer_result = $this->db->table('jobs')
+            ->select('employer_id')
+            ->where('job_id', $job_id)
+            ->get();
+        $employer_id = $employer_result ? $employer_result['employer_id'] : null;
+
+        // Check if both IDs are valid
+        if (is_null($seeker_id) || is_null($employer_id)) {
+            $_SESSION['toastr'] = [
+                'type' => 'error',
+                'message' => 'Unable to retrieve job seeker or employer information. Please try again.'
+            ];
+            redirect('user/jobseeker/saved-jobs');
+            return;
+        }
+
+        $data = [   
+            'job_id' => $job_id,
+            'jobseeker_id' => $seeker_id,
+            'employer_id' => $employer_id,
+            'first_name' => $this->io->post('first_name'),
+            'last_name' => $this->io->post('last_name'),
+            'email' => $this->io->post('email'),
+            'status' => 'Applied',
+            'applied_at' => date('Y-m-d H:i:s'),
+        ];
+
+        // Handle file upload (resume)
+        if (isset($_FILES['resume']) && $_FILES['resume']['error'] == 0) {
+            $this->call->library('upload', $_FILES["resume"]);
+            $this->upload
+                ->max_size(5 * 1024) // 5MB size limit
+                ->set_dir('uploads/resumes') // Directory to store the file
+                ->allowed_extensions(['pdf', 'doc', 'docx']) // Allowed file types
+                ->allowed_mimes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                ->encrypt_name(); // Encrypt the filename
+
+            if ($this->upload->do_upload()) {
+                $data['resume'] = $this->upload->get_filename();
+            } else {
+                $_SESSION['toastr'] = [
+                    'type' => 'error',
+                    'message' => 'Failed to upload resume. Please try again.'
+                ];
+                redirect('user/jobseeker/saved-jobs');
+                return;
+            }
+        }
+
+        // Insert application data
+        if ($this->db->table('job_applications')->insert($data)) {
+            $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Apply successfully!'];
+            $this->db->table('saved_jobs')
+                    ->where('job_id', $job_id)
+                    ->where('jobseeker_id', $seeker_id)
+                    ->delete();
+            redirect('user/jobseeker/saved-jobs');
+        } else {
+            $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to Apply!'];
+        }
+
+        redirect('user/jobseeker/saved-jobs');
     }
 
     public function getApplications() {
@@ -83,6 +239,7 @@ class applicationController extends Controller {
                         ->join('users as u', 'u.id = s.user_id') // User details for the jobseeker
                         ->select('j.id as application_id, j.job_id, job.title as job_title, job.description as job_description, job.salary, job.location, job.status as job_status, e.company_name, e.contact_info, j.status as application_status, j.applied_at as application_date, j.first_name, j.last_name, j.email, j.resume, j.interview_date, j.interview_time')
                         ->where('s.user_id', $user_id) // Get applications for the logged-in user
+                        ->order_by('j.applied_at', 'DESC') // Order by application date in descending order
                         ->get_all();
 
         $this->call->view('user/jobSeeker/jobApplication', [

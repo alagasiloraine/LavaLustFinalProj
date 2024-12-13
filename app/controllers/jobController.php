@@ -50,36 +50,87 @@ class JobController extends Controller {
         redirect('/jobs');
     }
     
-    public function getJob() {
+    // public function getJob() {
+    //     if (!isset($_SESSION['user_id'])) {
+    //         redirect('auth/login');
+    //     }
+    
+    //     $user_id = $_SESSION['user_id'];
+    
+    //     $user = $this->db->select('seeker_id')
+    //                      ->table('job_seekers')
+    //                      ->where('user_id', $user_id)
+    //                      ->get();
+    
+    //     $jobs = $this->db->table('jobs as j')
+    //                      ->join('employers as e', 'j.employer_id = e.employer_id')
+    //                      ->join('users as u', 'u.id = e.user_id') 
+    //                      ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
+    //                      ->get_all();
+
+    //     $applications = $this->db->table('job_applications')
+    //                      ->select('status')
+    //                      ->where('jobseeker_id', $user['seeker_id']) 
+    //                      ->get();
+
+    //     $save = $this->db->table('saved_jobs')
+    //                     ->where('jobseeker_id', $user['seeker_id'])
+    //                     ->get();
+                        
+    //     $this->call->view('user/employer/jobLists', ['jobs' => $jobs, 'user' => $user, 'applications' => $applications]);
+    // }
+    
+    public function getJob()
+    {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');
         }
-    
+
         $user_id = $_SESSION['user_id'];
-    
-        $user = $this->db->select('seeker_id')
-                         ->table('job_seekers')
-                         ->where('user_id', $user_id)
-                         ->get();
-    
-        $jobs = $this->db->table('jobs as j')
-                         ->join('employers as e', 'j.employer_id = e.employer_id')
-                         ->join('users as u', 'u.id = e.user_id') 
-                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
-                         ->get_all();
 
-        $applications = $this->db->table('job_applications')
-                         ->select('status')
-                         ->where('jobseeker_id', $user['seeker_id']) 
-                         ->get();
-
-        $save = $this->db->table('saved_jobs')
-                        ->where('jobseeker_id', $user['seeker_id'])
+        // Fetch the seeker_id for the logged-in user
+        $user = $this->db->table('job_seekers')
+                        ->select('seeker_id')
+                        ->where('user_id', $user_id)
                         ->get();
-                        
-        $this->call->view('user/employer/jobLists', ['jobs' => $jobs, 'user' => $user, 'applications' => $applications]);
+
+        if (!$user) {
+            $_SESSION['toastr'] = ['type' => 'error', 'message' => 'User not found.'];
+            redirect('auth/login');
+            return;
+        }
+
+        $seeker_id = $user['seeker_id'];
+
+        // Fetch jobs with employers and user details, ordered by latest posted
+        $jobs = $this->db->table('jobs as j')
+                        ->join('employers as e', 'j.employer_id = e.employer_id')
+                        ->join('users as u', 'u.id = e.user_id')
+                        ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
+                        ->order_by('j.posted_at', 'DESC') // Order by latest
+                        ->get_all();
+
+        // Fetch job application statuses for the logged-in user
+        $applications = $this->db->table('job_applications')
+                                ->select('job_id, status') // Include job_id for easier filtering
+                                ->where('jobseeker_id', $seeker_id)
+                                ->get_all();
+
+        // Fetch saved jobs for the logged-in user
+        $saved_jobs = $this->db->table('saved_jobs')
+                            ->select('job_id')
+                            ->where('jobseeker_id', $seeker_id)
+                            ->get_all();
+
+        // Pass the retrieved data to the view
+        $this->call->view('user/employer/jobLists', [
+            'jobs' => $jobs,
+            'user' => $user,
+            'applications' => $applications,
+            'saved_jobs' => $saved_jobs
+        ]);
     }
-    
+
     public function jobPosts()
     {
         if (!isset($_SESSION['user_id'])) {
@@ -98,6 +149,7 @@ class JobController extends Controller {
             ->join('users as u', 'u.id = e.user_id')
             ->where('u.id', $user_id)
             ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status')
+            ->order_by('j.posted_at', 'DESC')
             ->get_all();
 
         $count = $this->db->table('jobs as j')
@@ -205,83 +257,113 @@ class JobController extends Controller {
         }
     }
     
-    public function saveJob() {
-        
+    public function saveJob()
+    {
         if (!isset($_SESSION['user_id'])) {
-            redirect('auth/login');  
+            echo json_encode(['status' => 'error', 'message' => 'You must be logged in to save jobs.']);
+            return;
         }
-    
+
         $user_id = $_SESSION['user_id'];
-    
-        $user = $this->db->select('seeker_id')
-                ->table('job_seekers')
-                ->where('user_id', $user_id)
-                ->get();
+        $user = $this->db->table('job_seekers')
+                        ->select('seeker_id')
+                        ->where('user_id', $user_id)
+                        ->get();
 
-        $job = $this->io->post('job_id');
+        if (!$user) {
+            echo json_encode(['status' => 'error', 'message' => 'User not found.']);
+            return;
+        }
 
-        if ($this->db->table('saved_jobs')->where('job_id', $job)->get()) {
-            $this->db->table('saved_jobs')->where('job_id', $job)->delete();
+        $seeker_id = $user['seeker_id'];
+        $job_id = $this->io->post('job_id');
+
+        if (!$job_id) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid job ID.']);
+            return;
+        }
+
+        // Check if the job exists in the jobs table
+        $job = $this->db->table('jobs')
+                        ->select('job_id')
+                        ->where('job_id', $job_id)
+                        ->get();
+
+        if (!$job) {
+            echo json_encode(['status' => 'error', 'message' => 'Job not found.']);
+            return;
+        }
+
+        // Check if the job is already saved
+        $existing = $this->db->table('saved_jobs')
+                            ->where('job_id', $job_id)
+                            ->where('jobseeker_id', $seeker_id)
+                            ->get();
+
+        if ($existing) {
+            // Unsave the job
+            $this->db->table('saved_jobs')
+                    ->where('job_id', $job_id)
+                    ->where('jobseeker_id', $seeker_id)
+                    ->delete();
+
+            echo json_encode(['status' => 'success', 'message' => 'Job unsaved successfully.', 'saved' => false]);
         } else {
+            // Save the job
             $data = [
-                'job_id' => $this->io->post('job_id'),
-                'jobseeker_id' => $user['seeker_id'],
+                'job_id' => $job_id,
+                'jobseeker_id' => $seeker_id,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
-    
-            if ($this->db->table('saved_jobs')->insert($data)){
-                $_SESSION['toastr'] = ['type' => 'success', 'message' => 'Job saved successfully!'];
-                echo json_encode(['status' => 'success', 'message' => 'Job saved successfully.']);
-                redirect('jobs');
+
+            if ($this->db->table('saved_jobs')->insert($data)) {
+                echo json_encode(['status' => 'success', 'message' => 'Job saved successfully.', 'saved' => true]);
             } else {
-                $_SESSION['toastr'] = ['type' => 'error', 'message' => 'Failed to save job. Please try again.'];
-                echo json_encode(['status' => 'error','message' => 'Failed to save job. Please try again.']);
-                redirect('jobs');
+                echo json_encode(['status' => 'error', 'message' => 'Failed to save job. Please try again.']);
             }
         }
-
-        redirect('jobs');
     }
 
+    
     public function savedJobs() {
         if (!isset($_SESSION['user_id'])) {
             redirect('auth/login');
         }
-
-        $user_id = $_SESSION['user_id'];
-
-        $user_details = $this->db->select('*')
-                        ->table('users')
-                        ->where('id', $user_id)
-                        ->get();
     
-        $user = $this->db->select('seeker_id')
-                ->table('job_seekers')
-                ->where('user_id', $user_id)
-                ->get();
+        $user_id = $_SESSION['user_id'];
+    
+        $user_details = $this->db->select('*')
+                                ->table('users')
+                                ->where('id', $user_id)
+                                ->get();
+
+        $user = $this->db->table('job_seekers')
+                         ->select('seeker_id')
+                         ->where('user_id', $user_id)
+                         ->get();
 
         $applications = $this->db->table('job_applications as j')
-                ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
-                ->join('users as u', 'u.id = s.user_id')
-                ->select('j.id, j.job_id, j.employer_id, j.first_name, j.last_name, j.status, j.jobseeker_id')
-                ->get_all();
+                                 ->join('job_seekers as s', 'j.jobseeker_id = s.seeker_id')
+                                 ->join('users as u', 'u.id = s.user_id')
+                                 ->select('j.id, j.job_id, j.employer_id, j.first_name, j.last_name, j.status, j.jobseeker_id')
+                                 ->get_all();
+    
+        $savedJobs = $this->db->table('jobs as j')
+                              ->join('employers as e', 'j.employer_id = e.employer_id')
+                              ->join('saved_jobs as s', 's.job_id = j.job_id')
+                              ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
+                              ->where('s.jobseeker_id', $user['seeker_id']) 
+                              ->get_all();
 
-                
-
-        
-        $savedJobs =  $this->db->table('jobs as j')
-                    ->join('employers as e', 'j.employer_id = e.employer_id')
-                    ->join('saved_jobs as s', 's.job_id = j.job_id')
-                    // ->where('job_id', $result['job_id'])
-                    ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.status, e.company_name, e.contact_info')
-                    ->get_all();
-
+        // var_dump($savedJobs);
+        // die();
 
         $this->call->view('user/jobSeeker/savedJob', [
             'savedJobs' => $savedJobs,
             'user' => $user_details,
-            'applications' => $applications
+            'applications' => $applications,
         ]);
     }
+    
     
 }

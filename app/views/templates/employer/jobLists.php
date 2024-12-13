@@ -567,6 +567,10 @@
             animation: fadeIn 0.3s ease-out;
         }
 
+        .modal.active {
+            display: flex;
+        }
+
         /* Modal Content */
         .modal-content {
             background: #ffffff;
@@ -1463,6 +1467,10 @@
                                     </svg>
                                     <?= htmlspecialchars($job['job_type']); ?>
                                 </span>
+                                <span class="meta-item">
+                                💰
+                                    <?= htmlspecialchars($job['salary']); ?>
+                                </span>
                             </div>
 
                             <button class="view-details-btn" onclick="openJobModal(<?= htmlspecialchars(json_encode($job)); ?>)">
@@ -1480,7 +1488,7 @@
     <div id="jobModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="close">&times;</button>
+                <button class="close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="modal-main">
@@ -1518,6 +1526,11 @@
                         <h3>Requirements</h3>
                         <p id="modalRequirements"></p>
                     </div>
+
+                    <div class="modal-section">
+                        <h3>Salary</h3>
+                        <p id="modalSalary"></p>
+                    </div>
                 </div>
 
                 <div class="modal-sidebar">
@@ -1533,12 +1546,10 @@
 
 
                         <div class="modal-actions">
-                            <a id="modalApplyButton" href="#" class="btn btn-primary">Apply to this job</a>
+                            <a id="modalApplyButton" class="btn btn-primary">Apply to this job</a>
                         </div>
 
-                        <button class="btn btn-secondary" data-job-id="<?= htmlspecialchars($job['job_id']); ?>" onclick="saveJob(this)" style="width: 100%;">
-                            Save
-                        </button>
+                        <button class="btn btn-secondary" id="saveJob" style="width: 100%;">Save</button>
 
                     </div>
 
@@ -1588,7 +1599,7 @@
                 <button class="close" onclick="closeApplyModal()">&times;</button>
             </div>
             <div class="modal-body" style="display: block; padding: 20px;">
-                <form id="jobApplicationForm" method="post" action="/user/jobApplication" enctype="multipart/form-data">
+                <form id="jobApplicationForm" method="post" action="/user/jobseeker/job/apply" enctype="multipart/form-data">
                     <input type="hidden" id="jobId" name="job_id" value="">
                     <div style="margin-bottom: 15px;">
                         <label for="firstName" style="display: block; margin-bottom: 5px;">First Name</label>
@@ -1615,16 +1626,23 @@
     </div>
 
     <script>
+
+        function openApplyModal(jobId) {
+            document.getElementById("jobId").value = jobId; // Set the job ID in the hidden input
+            document.getElementById("applyModal").style.display = "block"; // Show the modal
+        }
+
+        function closeApplyModal() {
+            document.getElementById("applyModal").style.display = "none"; // Hide the modal
+        }
         document.getElementById('showJobPostModal').addEventListener('click', function () {
             document.getElementById('jobPostModal').style.display = 'flex';
         });
 
-        // Hide the modal
         document.getElementById('closeModal').addEventListener('click', function () {
             document.getElementById('jobPostModal').style.display = 'none';
         });
 
-        // Close the modal when clicking outside the modal content
         window.addEventListener('click', function (event) {
             const modal = document.getElementById('jobPostModal');
             if (event.target === modal) {
@@ -1636,30 +1654,64 @@
         var span = document.getElementsByClassName("close")[0];
 
         span.onclick = function() {
-            modal.style.display = "none";
+            modal.classList.remove("active");
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
-                modal.style.display = "none";
+                modal.classList.remove("active");
             }
         }
 
+      
+
         var userRole = <?= json_encode($user_role); ?>;
 
+        // function openJobModal(job) {
+        //     document.getElementById("modalJobTitle").textContent = job.title;
+        //     document.getElementById("modalCompanyName").textContent = job.company_name;
+        //     document.getElementById("modalCompanyLogo").src =
+        //         job.profile_picture
+        //             ? '../../../../uploads/profile_pictures/' + job.profile_picture
+        //             : '../../../../../public/images/default_profile.jpg';
+        //     document.getElementById("modalCompanyContact").textContent = job.contact_info;
+        //     document.getElementById("modalPostedDate").textContent = job.posted_at;
+        //     document.getElementById("modalLocation").querySelector("span").textContent = job.location;
+        //     document.getElementById("modalJobType").querySelector("span").textContent = job.job_type;
+        //     document.getElementById("modalDescription").textContent = job.description;
+        //     document.getElementById("modalRequirements").textContent = job.requirements;
+
+        //     if (userRole === "employer") {
+        //         document.getElementById("modalApplyButton").style.display = "none";
+        //         document.querySelector(".btn.btn-secondary").style.display = "none";
+        //     } else {
+        //         document.getElementById("modalApplyButton").style.display = "inline-block";
+        //         document.querySelector(".btn.btn-secondary").style.display = "block";
+        //     }
+
+        //     document.getElementById("modalApplyButton").onclick = function (e) {
+        //         e.preventDefault();
+        //         openApplyModal(job.job_id);
+        //     };
+
+        //     modal.style.display = "block";
+        // }
+
         function openJobModal(job) {
+            const modal = document.getElementById("jobModal");
+
             document.getElementById("modalJobTitle").textContent = job.title;
             document.getElementById("modalCompanyName").textContent = job.company_name;
             document.getElementById("modalCompanyLogo").src =
                 job.profile_picture
                     ? '../../../../uploads/profile_pictures/' + job.profile_picture
-                    : '../../../../../public/images/default_profile.jpg';
-            document.getElementById("modalCompanyContact").textContent = job.contact_info;
-            document.getElementById("modalPostedDate").textContent = job.posted_at;
+                    : '../../../public/images/default_profile.jpg';
             document.getElementById("modalLocation").querySelector("span").textContent = job.location;
             document.getElementById("modalJobType").querySelector("span").textContent = job.job_type;
-            document.getElementById("modalDescription").textContent = job.description;
-            document.getElementById("modalRequirements").textContent = job.requirements;
+            document.getElementById("modalDescription").textContent = job.description || "No description provided.";
+            document.getElementById("modalRequirements").textContent = job.requirements || "No requirements provided.";
+            document.getElementById("modalSalary").textContent = job.salary || "No requirements provided.";
+            document.getElementById("modalPostedDate").textContent = job.posted_at;
 
             if (userRole === "employer") {
                 document.getElementById("modalApplyButton").style.display = "none";
@@ -1669,13 +1721,30 @@
                 document.querySelector(".btn.btn-secondary").style.display = "block";
             }
 
-            document.getElementById("modalApplyButton").onclick = function (e) {
-                e.preventDefault();
-                openApplyModal(job.job_id);
+            document.getElementById("modalApplyButton").onclick = function () {
+                openApplyModal(job.job_id); // Pass the job_id to the apply modal
             };
 
-            modal.style.display = "block";
+            document.getElementById("saveJob").onclick = function () {
+                saveJob(job.job_id); // Pass the job_id dynamically when the button is clicked
+            };
+
+            modal.classList.add("active");
         }
+
+        function closeModal() {
+            const modal = document.getElementById("jobModal");
+            modal.classList.remove("active");
+        }
+
+
+        window.addEventListener("click", function (event) {
+            const modal = document.getElementById("jobModal");
+            if (event.target === modal) {
+                modal.classList.remove("active");
+            }
+        }); 
+
 
 
         function copyJobLink() {
@@ -1857,37 +1926,36 @@
             });
         }
 
-        // Run the function once the DOM is fully loaded
         document.addEventListener("DOMContentLoaded", updatePostedTimes);
 
-        function saveJob(button) {
-            const jobId = button.dataset.jobId;
-            const icon = button.querySelector("svg");
+        function saveJob(jobId) {
+            // Log the jobId to ensure it's correct
+            console.log("Job ID:", jobId);
 
             fetch('<?= site_url("user/jobseeker/save-job") ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: new URLSearchParams({ job_id: jobId }),
+                body: new URLSearchParams({ job_id: jobId }), // Send the job_id to the backend
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Toggle the heart icon class
-                        if (icon.classList.contains('bx-heart')) {
-                            icon.classList.remove('bx-heart', 'text-gray-500');
-                            icon.classList.add('bxs-heart', 'text-red-500');
-                        } else {
-                            icon.classList.remove('bxs-heart', 'text-red-500');
-                            icon.classList.add('bx-heart', 'text-gray-500');
-                        }
-                    } else {
-                        alert(data.message || "Failed to save the job.");
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById("saveJob").textContent = data.saved ? 'Unsave' : 'Save'; // Update button text dynamically
+                    toastr.success(data.message); // Show success notification
+                } else {
+                    toastr.error(data.message || "Failed to save the job."); // Show error notification
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred. Please try again.'); // Show error notification
+            });
         }
+
+
+
     </script>
 </body>
 

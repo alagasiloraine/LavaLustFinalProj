@@ -10,6 +10,11 @@ include APP_DIR.'views/templates/header.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
 :root {
     --primary-blue: #003366;  /* Dark blue for sidebar background */
@@ -511,6 +516,18 @@ body {
 <?php include APP_DIR.'views/templates/nav.php'; ?>
 
 <div class="profile-container">
+
+        <?php if (isset($_SESSION['success'])): ?>
+              <script>
+                  toastr.success("<?php echo $_SESSION['success']; ?>", "Success");
+              </script>
+              <?php unset($_SESSION['success']); ?>
+          <?php elseif (isset($_SESSION['error'])): ?>
+              <script>
+                  toastr.error("<?php echo $_SESSION['error']; ?>", "Error");
+              </script>
+              <?php unset($_SESSION['error']); ?>
+          <?php endif; ?>
     <!-- Left Sidebar -->
     <div class="profile-sidebar">
         <div class="profile-header">
@@ -518,9 +535,9 @@ body {
                 <img src="<?= isset($job_seeker['profile_picture']) && !empty($job_seeker['profile_picture']) ? '../../../../uploads/profile_pictures/' . $job_seeker['profile_picture'] : '../../../public/images/default_profile.jpg'; ?>" 
                     alt="Profile Picture" 
                     class="profile-image">
-                <button class="edit-image-btn">
+                <!-- <button class="edit-image-btn">
                     <i class="fas fa-edit"></i>
-                </button>
+                </button> -->
             </div>
             <h2 class="profile-name"><?= isset($job_seeker['full_name']) ? $job_seeker['full_name'] : $user['username']; ?></h2>
             <p class="profile-role"><?= $user['role']; ?></p>
@@ -541,8 +558,13 @@ body {
             <div class="quick-info">
                 <div class="info-item view-resume">
                     <i class="fas fa-file-alt"></i>
-                    <a href="<?= isset($job_seeker['resume']) ? site_url('uploads/' . $job_seeker['resume']) : '#'; ?>" 
-                       class="resume-link" target="_blank">View Resume</a>
+                    <?php if (!empty($job_seeker['resume'])): ?>
+                                    <a href="javascript:void(0)" 
+                                    class="view-resume-btn" 
+                                    onclick="downloadResume('<?= htmlspecialchars($job_seeker['resume']) ?>')">View Resume</a>
+                                <?php else: ?>
+                                    <span class="no-resume-available">No Resume Available</span>
+                                <?php endif; ?>
                 </div>
                 <!-- <div class="info-item">
                     <i class="fas fa-envelope"></i>
@@ -854,6 +876,50 @@ body {
             document.querySelector('form').submit();
         });
     });
+
+    function downloadResume(resumeFile) {
+        // Construct the URL to the PHP function that serves the file
+        var downloadUrl = "<?= site_url('user/employer/download_resume/') ?>" + resumeFile;
+
+        // Create a new XMLHttpRequest to fetch the file
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", downloadUrl, true);
+        xhr.responseType = 'blob';  // Expect a blob response (binary data)
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Create a Blob from the response
+                var blob = xhr.response;
+                var link = document.createElement('a');
+                
+                // Create an object URL from the Blob
+                var url = window.URL.createObjectURL(blob);
+                
+                // Set the download attribute to suggest the filename
+                link.href = url;
+                link.download = resumeFile;  // Use the resume filename as the downloaded file name
+                
+                // Append the link to the body (required for triggering the click event)
+                document.body.appendChild(link);
+                
+                // Trigger the download by simulating a click
+                link.click();
+                
+                // Clean up: remove the link and revoke the object URL
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert("Failed to download the file. Please try again.");
+            }
+        };
+
+        xhr.onerror = function() {
+            alert("Error while downloading the file. Please try again.");
+        };
+
+        // Send the request to the server
+        xhr.send();
+    }
 </script>
 
 <?php include APP_DIR.'views/templates/footer.php'; ?>

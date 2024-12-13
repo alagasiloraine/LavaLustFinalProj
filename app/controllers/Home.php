@@ -139,10 +139,11 @@ class Home extends Controller {
                 ->get();
 
         $jobs = $this->db->table('jobs as j')
-                         ->join('employers as e', 'j.employer_id = e.employer_id')
-                         ->join('users as u', 'u.id = e.user_id') 
-                         ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
-                         ->get_all();
+                ->join('employers as e', 'j.employer_id = e.employer_id')
+                ->join('users as u', 'u.id = e.user_id')
+                ->select('j.job_id, j.title, j.description, j.requirements, j.location, j.job_type, j.salary, j.posted_at, j.category, j.status, e.company_name, e.contact_info, e.profile_picture')
+                ->order_by('j.posted_at', 'DESC') // Order by latest
+                ->get_all();
     
         if ($jobs === false) {
             $jobs = []; 
